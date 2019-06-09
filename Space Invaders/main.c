@@ -5,6 +5,7 @@ LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
 void EnableOpenGL(HWND hwnd, HDC*, HGLRC*);
 void DisableOpenGL(HWND, HDC, HGLRC);
 
+int held = 0;
 
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
@@ -81,14 +82,16 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
             glPushMatrix();
 
-            glBegin(GL_QUADS);
+            if(held) {
+                glBegin(GL_QUADS);
 
-                glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(0.75f,   0.75f);
-                glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(-0.75f,  0.75f);
-                glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(-0.75f, -0.75f);
-                glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(0.75f, -0.75f);
+                    glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(0.75f,   0.75f);
+                    glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(-0.75f,  0.75f);
+                    glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(-0.75f, -0.75f);
+                    glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(0.75f, -0.75f);
 
-            glEnd();
+                glEnd();
+            }
 
             glPopMatrix();
 
@@ -121,9 +124,25 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             switch (wParam)
             {
+                case VK_SPACE:
+                    held = 1;
+                    break;
+
+
                 case VK_ESCAPE:
                     PostQuitMessage(0);
-                break;
+                    break;
+            }
+        }
+        break;
+
+        case WM_KEYUP:
+        {
+            switch(wParam)
+            {
+                case VK_SPACE:
+                    held = 0;
+                    break;
             }
         }
         break;
