@@ -5,7 +5,7 @@ LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
 void EnableOpenGL(HWND hwnd, HDC*, HGLRC*);
 void DisableOpenGL(HWND, HDC, HGLRC);
 
-int held = 0;
+int setaUp = 0, setaDown = 0, setaLeft = 0, setaRight = 0;
 
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
@@ -82,13 +82,43 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
             glPushMatrix();
 
-            if(held) {
+            if(setaUp) {
                 glBegin(GL_QUADS);
 
-                    glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(0.75f,   0.75f);
-                    glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(-0.75f,  0.75f);
-                    glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(-0.75f, -0.75f);
-                    glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(0.75f, -0.75f);
+                    glColor3f(1.0f, 0.0f, 1.0f);   glVertex2f(-1.0f,   1.0f);
+                    glColor3f(1.0f, 0.0f, 1.0f);   glVertex2f(0.0f,  1.0f);
+                    glColor3f(1.0f, 0.0f, 1.0f);   glVertex2f(0.0f, 0.0f);
+                    glColor3f(1.0f, 0.0f, 1.0f);   glVertex2f(-1.0f, 0.0f);
+
+                glEnd();
+            }
+            if(setaRight) {
+                glBegin(GL_QUADS);
+
+                    glColor3f(0.0f, 1.0f, 1.0f);   glVertex2f(0.0f,   1.0f);
+                    glColor3f(0.0f, 1.0f, 1.0f);   glVertex2f(1.0f,  1.0f);
+                    glColor3f(0.0f, 1.0f, 1.0f);   glVertex2f(1.0f, 0.0f);
+                    glColor3f(0.0f, 1.0f, 1.0f);   glVertex2f(0.0f, 0.0f);
+
+                glEnd();
+            }
+            if(setaDown) {
+                glBegin(GL_QUADS);
+
+                    glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(0.0f,   0.0f);
+                    glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(1.0f,  0.0f);
+                    glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(1.0f, -1.0f);
+                    glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(0.0f, -1.0f);
+
+                glEnd();
+            }
+            if(setaLeft) {
+                glBegin(GL_QUADS);
+
+                    glColor3f(1.0f, 0.5f, 0.0f);   glVertex2f(0.0f,   0.0f);
+                    glColor3f(1.0f, 0.5f, 0.0f);   glVertex2f(0.0f,  -1.0f);
+                    glColor3f(1.0f, 0.5f, 0.0f);   glVertex2f(-1.0f, -1.0f);
+                    glColor3f(1.0f, 0.5f, 0.0f);   glVertex2f(-1.0f, 0.0f);
 
                 glEnd();
             }
@@ -124,8 +154,20 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             switch (wParam)
             {
-                case VK_SPACE:
-                    held = 1;
+                case VK_UP:
+                    setaUp = 1;
+                    break;
+
+                case VK_DOWN:
+                    setaDown = 1;
+                    break;
+
+                case VK_LEFT:
+                    setaLeft = 1;
+                    break;
+
+                case VK_RIGHT:
+                    setaRight = 1;
                     break;
 
 
@@ -140,9 +182,22 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             switch(wParam)
             {
-                case VK_SPACE:
-                    held = 0;
+                case VK_UP:
+                    setaUp = 0;
                     break;
+
+                case VK_DOWN:
+                    setaDown = 0;
+                    break;
+
+                case VK_LEFT:
+                    setaLeft = 0;
+                    break;
+
+                case VK_RIGHT:
+                    setaRight = 0;
+                    break;
+
             }
         }
         break;
