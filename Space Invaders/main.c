@@ -6,6 +6,7 @@ void EnableOpenGL(HWND hwnd, HDC*, HGLRC*);
 void DisableOpenGL(HWND, HDC, HGLRC);
 
 int setaUp = 0, setaDown = 0, setaLeft = 0, setaRight = 0;
+float posX = -0.5, posY = 0.5;
 
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
@@ -80,48 +81,25 @@ int WINAPI WinMain(HINSTANCE hInstance,
             glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
+            if(setaRight && (posX > -1.0f && posX < 1.0f))
+                posX += 0.01f;
+            if(setaLeft && (posX > -1.0f && posX < 1.0f))
+                posX -= 0.01f;
+            if(setaUp && (posY > -1.0f && posY < 1.0f))
+                posY += 0.01f;
+            if(setaDown && (posY > -1.0f && posY < 1.0f))
+                posY -= 0.01f;
+
             glPushMatrix();
 
-            if(setaUp) {
-                glBegin(GL_QUADS);
+            glBegin(GL_QUADS);
 
-                    glColor3f(1.0f, 0.0f, 1.0f);   glVertex2f(-1.0f,   1.0f);
-                    glColor3f(1.0f, 0.0f, 1.0f);   glVertex2f(0.0f,  1.0f);
-                    glColor3f(1.0f, 0.0f, 1.0f);   glVertex2f(0.0f, 0.0f);
-                    glColor3f(1.0f, 0.0f, 1.0f);   glVertex2f(-1.0f, 0.0f);
+                glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(posX + 0.05f, posY + 0.05f);
+                glColor3f(0.0f, 1.0f, 0.0f);   glVertex2f(posX + 0.05f, posY - 0.05f);
+                glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(posX - 0.05f, posY - 0.05f);
+                glColor3f(1.0f, 0.0f, 1.0f);   glVertex2f(posX - 0.05f, posY + 0.05f);
 
-                glEnd();
-            }
-            if(setaRight) {
-                glBegin(GL_QUADS);
-
-                    glColor3f(0.0f, 1.0f, 1.0f);   glVertex2f(0.0f,   1.0f);
-                    glColor3f(0.0f, 1.0f, 1.0f);   glVertex2f(1.0f,  1.0f);
-                    glColor3f(0.0f, 1.0f, 1.0f);   glVertex2f(1.0f, 0.0f);
-                    glColor3f(0.0f, 1.0f, 1.0f);   glVertex2f(0.0f, 0.0f);
-
-                glEnd();
-            }
-            if(setaDown) {
-                glBegin(GL_QUADS);
-
-                    glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(0.0f,   0.0f);
-                    glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(1.0f,  0.0f);
-                    glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(1.0f, -1.0f);
-                    glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(0.0f, -1.0f);
-
-                glEnd();
-            }
-            if(setaLeft) {
-                glBegin(GL_QUADS);
-
-                    glColor3f(1.0f, 0.5f, 0.0f);   glVertex2f(0.0f,   0.0f);
-                    glColor3f(1.0f, 0.5f, 0.0f);   glVertex2f(0.0f,  -1.0f);
-                    glColor3f(1.0f, 0.5f, 0.0f);   glVertex2f(-1.0f, -1.0f);
-                    glColor3f(1.0f, 0.5f, 0.0f);   glVertex2f(-1.0f, 0.0f);
-
-                glEnd();
-            }
+            glEnd();
 
             glPopMatrix();
 
