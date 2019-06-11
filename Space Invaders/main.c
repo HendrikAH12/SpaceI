@@ -5,8 +5,8 @@ LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
 void EnableOpenGL(HWND hwnd, HDC*, HGLRC*);
 void DisableOpenGL(HWND, HDC, HGLRC);
 
-int setaUp = 0, setaDown = 0, setaLeft = 0, setaRight = 0;
-float posX = -0.5, posY = 0.5;
+int setaUp = 0, setaDown = 0, setaLeft = 0, setaRight = 0; //Variáveis para o reconhecimento de tecla
+float posX = -0.5, posY = 0.5, border = 0.8, square_size = 0.05, move_speed = 0.01; //Setup do personagem e do mapa jogável
 
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
@@ -78,28 +78,57 @@ int WINAPI WinMain(HINSTANCE hInstance,
         {
             /* OpenGL animation code goes here */
 
-            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            if(setaRight && (posX > -1.0f && posX < 1.0f))
-                posX += 0.01f;
-            if(setaLeft && (posX > -1.0f && posX < 1.0f))
-                posX -= 0.01f;
-            if(setaUp && (posY > -1.0f && posY < 1.0f))
-                posY += 0.01f;
-            if(setaDown && (posY > -1.0f && posY < 1.0f))
-                posY -= 0.01f;
+            /*
+            Controle da posição:
+            - Se a tecla for pressionada, checar se o personagem está dentro da borda (quadrado de border x border de tamanho)
+            - Se sim modificar a posX e/ou posY adicionando ou subtraindo move_speed, dependendo do necessário
+            */
+
+            if(setaRight && (posX >= -border && posX <= border))
+                posX += move_speed;
+            if(setaLeft && (posX >= -border && posX <= border))
+                posX -= move_speed;
+            if(setaUp && (posY >= -border && posY <= border))
+                posY += move_speed;
+            if(setaDown && (posY >= -border && posY <= border))
+                posY -= move_speed;
+
+            // Manter o personagem dentro das borders
+            if(posX < -border)
+                posX = -border;
+            if(posX > border)
+                posX = border;
+            if(posY < -border)
+                posY = -border;
+            if(posY > border)
+                posY = border;
 
             glPushMatrix();
 
+            //Desenha o quadrado da área jogável
             glBegin(GL_QUADS);
 
-                glColor3f(1.0f, 0.0f, 0.0f);   glVertex2f(posX + 0.05f, posY + 0.05f);
-                glColor3f(0.0f, 1.0f, 0.0f);   glVertex2f(posX + 0.05f, posY - 0.05f);
-                glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(posX - 0.05f, posY - 0.05f);
-                glColor3f(1.0f, 0.0f, 1.0f);   glVertex2f(posX - 0.05f, posY + 0.05f);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(border + square_size, border + square_size);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(border + square_size, -border - square_size);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-border - square_size, -border - square_size);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-border - square_size, border + square_size);
 
             glEnd();
+
+            //Desenha o personagem
+            glBegin(GL_QUADS);
+
+                glColor3f(1, 0.0f, 0.0f);   glVertex2f(posX + square_size, posY + square_size);
+                glColor3f(0.0f, 1, 0.0f);   glVertex2f(posX + square_size, posY - square_size);
+                glColor3f(0.0f, 0.0f, 1);   glVertex2f(posX - square_size, posY - square_size);
+                glColor3f(1, 0.0f, 1);   glVertex2f(posX - square_size, posY + square_size);
+
+            glEnd();
+
+            glPushMatrix();
 
             glPopMatrix();
 

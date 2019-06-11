@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1560102950 source:c:\users\darkm\documents\github\spacei\space invaders\main.c
+1560210556 source:c:\users\darkm\documents\github\spacei\space invaders\main.c
 	<windows.h>
 	<gl/gl.h>
 
