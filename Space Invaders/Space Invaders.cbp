@@ -39,6 +39,10 @@
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="spaceinvaders.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="spaceinvaders.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
