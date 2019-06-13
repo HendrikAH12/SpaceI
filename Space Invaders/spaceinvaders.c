@@ -19,6 +19,8 @@ struct TNave {
 
 struct TAlien {
     bool vivo;
+    int movTimerDef, movTimer;
+    float tamanho;
     struct Point pos;
 };
 
@@ -29,6 +31,8 @@ struct Tiro {
 struct TiroInimigo {
     struct Point pos;
 };
+
+//===============================================================================
 
 // Aloca espaço da memória para uma nave, e associa os valores dados à ela.
 Nave* nave_create(float _x, float _y, float naveTamanho, int numVidas) {
@@ -59,7 +63,7 @@ void mover_nave(Nave *_nave, int direcao_movimento, float vel_movimento, float l
     - Depois, garantir que o personagem esteja dentro das bordas.
     */
 
-    if(_nave->pos.x >= -limite && _nave->pos.x <= limite) {
+    if(_nave->pos.x >= -limite && _nave->pos.x <= limite && _nave->vivo) {
         switch(direcao_movimento) {
             case 1:
                 _nave->pos.x += vel_movimento;
@@ -128,8 +132,73 @@ void set_pos_nave(Nave *_nave, float posX, float posY) {
     _nave->pos.y = posY;
 }
 
-void desenhaSprite() {
+//===============================================================================
 
+Alien* alien_create(float _x, float _y, float _tamanho, int timer) {
+    Alien* _alien = malloc(sizeof(Alien));
+    if(_alien != NULL) {
+        _alien->vivo = true;
+        _alien->pos.x = _x;
+        _alien->pos.y = _y;
+        _alien->tamanho = _tamanho;
+        _alien->movTimerDef = _alien->movTimer = timer;
+    }
+    return _alien;
 }
 
+bool alien_vivo(Alien *_alien) {
+    return _alien->vivo;
+}
 
+void desenhaAlien(Alien *_alien) {
+
+    if(_alien != NULL && _alien->vivo) {
+
+        float posX = _alien->pos.x;
+        float posY = _alien->pos.y;
+        float tam =  _alien->tamanho;
+
+        /*
+                    ---------------
+                    |             |       O é o centro (marcado pelo Point pos da nave.
+                    |             |       A caixa do sprite tem um lado = 2 * tamanho.
+                  - |      O      |
+              tam | |             |
+                  | |             |
+                  - ---------------
+                            |-----|
+                               tam
+        */
+
+        glBegin(GL_QUADS);
+
+            glColor3f(1, 0.0f, 0.0f);   glVertex2f(posX + tam, posY + tam);
+            glColor3f(0.0f, 1, 0.0f);   glVertex2f(posX + tam, posY - tam);
+            glColor3f(0.0f, 0.0f, 1);   glVertex2f(posX - tam, posY - tam);
+            glColor3f(1, 0.0f, 1);   glVertex2f(posX - tam, posY + tam);
+
+        glEnd();
+
+    }
+}
+
+void mover_alien(Alien *_alien, int *direcao, float velocidade, float borda) {
+    if(_alien->movTimer == 0) {
+        if(*direcao > 0) {
+            if(_alien->pos.x + velocidade <= borda)
+                _alien->pos.x += velocidade;
+            else
+                *direcao = -1;
+        }
+        if(*direcao < 0) {
+            if(_alien->pos.x - velocidade >= -borda)
+                _alien->pos.x -= velocidade;
+            else
+                *direcao = 1;
+        }
+        _alien->movTimer = 50;
+    }
+    else {
+        _alien->movTimer -= 1;
+    }
+}

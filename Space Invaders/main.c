@@ -5,15 +5,20 @@
 #include <time.h>
 #include "spaceinvaders.h"
 
+
+
 LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
 void EnableOpenGL(HWND hwnd, HDC*, HGLRC*);
 void DisableOpenGL(HWND, HDC, HGLRC);
 
 //========================================================
-int dirMovimento = 0; //Variável para o reconhecimento de tecla
-float posX = -0.5, posY = 0.5, borderX = 0.5, borderY = 0.8, square_size = 0.04, move_speed = 0.01; //Setup do personagem e do mapa jogável
+int dirMovimento = 0, dirAlien = 1; //Variável para o reconhecimento de tecla
+float borderX = 0.5, borderY = 0.8, tamanhoSprite = 0.04, vel_jogador = 0.01, vel_alien = 0.05; //Setup do personagem e do mapa jogável
 Nave *nave; //Ponteiro da nave
+Alien *aliens[ALIENX][ALIENY]; //Ponteiros dos aliens
 //========================================================
+
+void inicializarJogo();
 
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
@@ -61,7 +66,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
     ShowWindow(hwnd, nCmdShow);
 
-    nave = nave_create(-0.5, -0.5, square_size, 3);
+    inicializarJogo();
 
     /* enable OpenGL for the window */
     EnableOpenGL(hwnd, &hDC, &hRC);
@@ -90,25 +95,19 @@ int WINAPI WinMain(HINSTANCE hInstance,
             glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            //Função principal de movimento do personagem jogável
-            mover_nave(nave, dirMovimento, move_speed, borderX);
-
             glPushMatrix();
 
             //Desenha o quadrado da área jogável
             glBegin(GL_QUADS);
 
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + square_size, borderY + square_size);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + square_size, -borderY - square_size);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - square_size, -borderY - square_size);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - square_size, borderY + square_size);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + tamanhoSprite, borderY + tamanhoSprite);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + tamanhoSprite, -borderY - tamanhoSprite);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - tamanhoSprite, -borderY - tamanhoSprite);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - tamanhoSprite, borderY + tamanhoSprite);
 
             glEnd();
 
-            //Desenha o personagem jogável
-            desenhaNave(nave);
-
-            glPushMatrix();
+            desenhaJogo();
 
             glPopMatrix();
 
@@ -219,3 +218,42 @@ void DisableOpenGL (HWND hwnd, HDC hDC, HGLRC hRC)
     ReleaseDC(hwnd, hDC);
 }
 
+void inicializarJogo() {
+    nave = nave_create(-0.5, -0.6, tamanhoSprite, 3);
+
+    int i, j;
+    float posX = -0.4, posY = 0.5;
+    for(i = 0; i < ALIENX; i++) {
+        for(j = 0; j < ALIENY; j++) {
+            aliens[i][j] = alien_create(posX, posY, tamanhoSprite, 50);
+            posX += 0.2;
+        }
+        posY -= 0.2;
+        posX = -0.4;
+    }
+}
+
+void desenhaJogo() {
+
+    //Função principal de movimento do personagem jogável
+    mover_nave(nave, dirMovimento, vel_jogador, borderX);
+
+    //Desenha o personagem jogável
+    desenhaNave(nave);
+
+    int i, j;
+    bool descer = false;
+    for(i = 0; i < ALIENX; i++) {
+        for(j = 0; j < ALIENY; j++) {
+            mover_alien(aliens[i][j], &dirAlien, vel_alien, borderX);
+            desenhaAlien(aliens[i][j]);
+        }
+    }
+
+    for(i = 0; i < ALIENX; i++) {
+        for(j = 0; j < ALIENY; j++) {
+            mover_alien(aliens[i][j], &dirAlien, vel_alien, borderX);
+            desenhaAlien(aliens[i][j]);
+        }
+    }
+}
