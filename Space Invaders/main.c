@@ -278,10 +278,8 @@ void desenhaJogo() {
             if(alien_vivo(aliens[i][j])) {
                 if(precisaDescer) {
                     descer_alien(aliens[i][j]);
-                } else {
-                    float pos = get_pos_alienX(aliens[i][j]);
-                    mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, alienTimer);
                 }
+                mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, alienTimer);
                 desenhaAlien(aliens[i][j]);
             }
         }
