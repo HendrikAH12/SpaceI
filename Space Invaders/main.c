@@ -6,14 +6,14 @@
 #include "spaceinvaders.h"
 
 
-
 LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
 void EnableOpenGL(HWND hwnd, HDC*, HGLRC*);
 void DisableOpenGL(HWND, HDC, HGLRC);
 
 //========================================================
 int dirMovimento = 0, dirAlien = 1; //Variável para o reconhecimento de tecla
-float borderX = 0.5, borderY = 0.8, tamanhoSprite = 0.04, vel_jogador = 0.01, vel_alien = 0.05; //Setup do personagem e do mapa jogável
+int alienTimer = ALIENTIMER;
+float borderX = 0.6, borderY = 0.8, tamanhoSprite = 0.04, vel_jogador = 0.01, vel_alien = 0.04; //Setup do personagem e do mapa jogável
 Nave *nave; //Ponteiro da nave
 Alien *aliens[ALIENX][ALIENY]; //Ponteiros dos aliens
 //========================================================
@@ -100,10 +100,15 @@ int WINAPI WinMain(HINSTANCE hInstance,
             //Desenha o quadrado da área jogável
             glBegin(GL_QUADS);
 
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + tamanhoSprite, borderY + tamanhoSprite);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + tamanhoSprite, -borderY - tamanhoSprite);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - tamanhoSprite, -borderY - tamanhoSprite);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - tamanhoSprite, borderY + tamanhoSprite);
+//                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + tamanhoSprite, borderY + tamanhoSprite);
+//                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + tamanhoSprite, -borderY - tamanhoSprite);
+//                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - tamanhoSprite, -borderY - tamanhoSprite);
+//                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - tamanhoSprite, borderY + tamanhoSprite);
+
+                  glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX, borderY);
+                  glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX, -borderY);
+                  glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX, -borderY);
+                  glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX, borderY);
 
             glEnd();
 
@@ -148,6 +153,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
                 case VK_RIGHT:
                     dirMovimento = 1;
+                    break;
+
+                case VK_SPACE:
+                    dirAlien *= -1;
                     break;
 
                 case VK_ESCAPE:
@@ -225,7 +234,7 @@ void inicializarJogo() {
     float posX = -0.4, posY = 0.5;
     for(i = 0; i < ALIENX; i++) {
         for(j = 0; j < ALIENY; j++) {
-            aliens[i][j] = alien_create(posX, posY, tamanhoSprite, 50);
+            aliens[i][j] = alien_create(posX, posY, tamanhoSprite, 0);
             posX += 0.2;
         }
         posY -= 0.2;
@@ -242,18 +251,48 @@ void desenhaJogo() {
     desenhaNave(nave);
 
     int i, j;
-    bool descer = false;
+    int precisaDescer = false;
     for(i = 0; i < ALIENX; i++) {
         for(j = 0; j < ALIENY; j++) {
-            mover_alien(aliens[i][j], &dirAlien, vel_alien, borderX);
-            desenhaAlien(aliens[i][j]);
+            if(alien_vivo(aliens[i][j])) {
+
+                float pos = get_pos_alienX(aliens[i][j]);
+
+                if(pos + 2*tamanhoSprite > borderX && dirAlien == 1) {
+                    precisaDescer = true;
+                    dirAlien = -1;
+                    break;
+                }
+                else if(pos - 2*tamanhoSprite < -borderX && dirAlien == -1)
+                {
+                    precisaDescer = true;
+                    dirAlien = 1;
+                    break;
+                }
+            }
         }
     }
 
     for(i = 0; i < ALIENX; i++) {
         for(j = 0; j < ALIENY; j++) {
-            mover_alien(aliens[i][j], &dirAlien, vel_alien, borderX);
-            desenhaAlien(aliens[i][j]);
+            if(alien_vivo(aliens[i][j])) {
+                if(precisaDescer) {
+                    descer_alien(aliens[i][j]);
+                } else {
+                    float pos = get_pos_alienX(aliens[i][j]);
+                    mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, alienTimer);
+                }
+                desenhaAlien(aliens[i][j]);
+            }
         }
     }
+
+    updateTimer();
+}
+
+void updateTimer() {
+    alienTimer -= 1;
+    if(alienTimer < 0)
+        alienTimer = ALIENTIMER;
+    printf("%d\n", alienTimer);
 }

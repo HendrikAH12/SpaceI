@@ -19,7 +19,7 @@ struct TNave {
 
 struct TAlien {
     bool vivo;
-    int movTimerDef, movTimer;
+    int offsetTimer;
     float tamanho;
     struct Point pos;
 };
@@ -134,14 +134,14 @@ void set_pos_nave(Nave *_nave, float posX, float posY) {
 
 //===============================================================================
 
-Alien* alien_create(float _x, float _y, float _tamanho, int timer) {
+Alien* alien_create(float _x, float _y, float _tamanho, int offset) {
     Alien* _alien = malloc(sizeof(Alien));
     if(_alien != NULL) {
         _alien->vivo = true;
         _alien->pos.x = _x;
         _alien->pos.y = _y;
         _alien->tamanho = _tamanho;
-        _alien->movTimerDef = _alien->movTimer = timer;
+        _alien->offsetTimer = offset;
     }
     return _alien;
 }
@@ -182,23 +182,28 @@ void desenhaAlien(Alien *_alien) {
     }
 }
 
-void mover_alien(Alien *_alien, int *direcao, float velocidade, float borda) {
-    if(_alien->movTimer == 0) {
-        if(*direcao > 0) {
-            if(_alien->pos.x + velocidade <= borda)
-                _alien->pos.x += velocidade;
-            else
-                *direcao = -1;
-        }
-        if(*direcao < 0) {
-            if(_alien->pos.x - velocidade >= -borda)
-                _alien->pos.x -= velocidade;
-            else
-                *direcao = 1;
-        }
-        _alien->movTimer = 50;
+void mover_alien(Alien *_alien, int direcao, float velocidade, float borda, int timer) {
+    if(timer - _alien->offsetTimer <= 0) {
+        if(direcao > 0)
+            _alien->pos.x += velocidade;
+        else
+            _alien->pos.x -= velocidade;
     }
-    else {
-        _alien->movTimer -= 1;
-    }
+}
+
+float get_pos_alienX(Alien *_alien) {
+    return _alien->pos.x;
+}
+
+void set_pos_alienX(Alien *_alien, float _x) {
+    _alien->pos.x = _x;
+}
+
+void descer_alien(Alien *_alien) {
+    _alien->pos.y -= 0.1f;
+}
+
+void matar_alien(Alien *_alien) {
+    _alien->vivo = false;
+    free(_alien);
 }
