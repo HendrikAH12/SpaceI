@@ -12,13 +12,16 @@ void DisableOpenGL(HWND, HDC, HGLRC);
 
 //========================================================
 int dirMovimento = 0, dirAlien = 1; //Variável para o reconhecimento de tecla
-int alienTimer = ALIENTIMER;
+int alienTimer = ALIENTIMERDEFAULT;
 float borderX = 0.6, borderY = 0.8, tamanhoSprite = 0.04, vel_jogador = 0.01, vel_alien = 0.04; //Setup do personagem e do mapa jogável
 Nave *nave; //Ponteiro da nave
 Alien *aliens[ALIENX][ALIENY]; //Ponteiros dos aliens
 //========================================================
 
 void inicializarJogo();
+void desenhaJogo();
+void logicaAliens();
+void updateTimer();
 
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
@@ -100,15 +103,10 @@ int WINAPI WinMain(HINSTANCE hInstance,
             //Desenha o quadrado da área jogável
             glBegin(GL_QUADS);
 
-//                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + tamanhoSprite, borderY + tamanhoSprite);
-//                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + tamanhoSprite, -borderY - tamanhoSprite);
-//                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - tamanhoSprite, -borderY - tamanhoSprite);
-//                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - tamanhoSprite, borderY + tamanhoSprite);
-
-                  glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX, borderY);
-                  glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX, -borderY);
-                  glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX, -borderY);
-                  glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX, borderY);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + tamanhoSprite, borderY + tamanhoSprite);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + tamanhoSprite, -borderY - tamanhoSprite);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - tamanhoSprite, -borderY - tamanhoSprite);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - tamanhoSprite, borderY + tamanhoSprite);
 
             glEnd();
 
@@ -156,7 +154,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     break;
 
                 case VK_SPACE:
-                    dirAlien *= -1;
+                    //dirAlien *= -1;
                     break;
 
                 case VK_ESCAPE:
@@ -230,15 +228,16 @@ void DisableOpenGL (HWND hwnd, HDC hDC, HGLRC hRC)
 void inicializarJogo() {
     nave = nave_create(-0.5, -0.6, tamanhoSprite, 3);
 
-    int i, j;
+    int i, j , offset = 0;
     float posX = -0.4, posY = 0.5;
     for(i = 0; i < ALIENX; i++) {
         for(j = 0; j < ALIENY; j++) {
-            aliens[i][j] = alien_create(posX, posY, tamanhoSprite, 0);
+            aliens[i][j] = alien_create(posX, posY, tamanhoSprite, offset);
             posX += 0.2;
         }
         posY -= 0.2;
         posX = -0.4;
+        offset += 10;
     }
 }
 
@@ -250,47 +249,85 @@ void desenhaJogo() {
     //Desenha o personagem jogável
     desenhaNave(nave);
 
-    int i, j;
-    int precisaDescer = false;
-    for(i = 0; i < ALIENX; i++) {
-        for(j = 0; j < ALIENY; j++) {
-            if(alien_vivo(aliens[i][j])) {
+    //Desenha e processa o movimento dos aliens
+    logicaAliens();
 
-                float pos = get_pos_alienX(aliens[i][j]);
-
-                if(pos + 2*tamanhoSprite > borderX && dirAlien == 1) {
-                    precisaDescer = true;
-                    dirAlien = -1;
-                    break;
-                }
-                else if(pos - 2*tamanhoSprite < -borderX && dirAlien == -1)
-                {
-                    precisaDescer = true;
-                    dirAlien = 1;
-                    break;
-                }
-            }
-        }
-    }
-
-    for(i = 0; i < ALIENX; i++) {
-        for(j = 0; j < ALIENY; j++) {
-            if(alien_vivo(aliens[i][j])) {
-                if(precisaDescer) {
-                    descer_alien(aliens[i][j]);
-                }
-                mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, alienTimer);
-                desenhaAlien(aliens[i][j]);
-            }
-        }
-    }
-
+    //Atualiza o timer
     updateTimer();
 }
 
+/*
+    - Executa um cheque de posições (para decidir o movimento e desenhar os aliens vivos)
+    - Se os aliens vai sair da borda, descer e inverter a direção.
+    - Se não, mover os aliens de posição.
+    - Fazer tudo isso analisando o timer dos aliens (alienTimer) e os offsets
+*/
+void logicaAliens() {
+    int i, j;
+    int precisaDescer = false;
+
+    // Cheque de posições
+    for(i = 0; i < ALIENX; i++) {
+        for(j = 0; j < ALIENY; j++) {
+
+            if(alien_vivo(aliens[i][j])) {
+
+                desenhaAlien(aliens[i][j]); //Função principal de desenho.
+
+                // Se este if não estiver aqui, os aliens descem antes que todos cheguem na borda.
+                if(alienTimer - get_offset(aliens[i][j]) == 0) {
+
+                    float pos = get_pos_alienX(aliens[i][j]);
+
+                    //Ativar a flag de descida, inverter a direção e sair do cheque de posição, se o aliens chegarem na borda.
+                    if(pos + 2 * tamanhoSprite > borderX && dirAlien == 1)
+                    {
+                        precisaDescer = true;
+                        dirAlien = -1;
+                        break;
+                    }
+                    else if(pos - 2 * tamanhoSprite < -borderX && dirAlien == -1)
+                    {
+                        precisaDescer = true;
+                        dirAlien = 1;
+                        break;
+                    }
+
+                }
+            }
+        }
+        // Sair do cheque
+        if(precisaDescer) {
+            break;
+        }
+    }
+
+    // Movimentação dos aliens
+    for(i = 0; i < ALIENX; i++) {
+        for(j = 0; j < ALIENY; j++) {
+
+            if(alien_vivo(aliens[i][j])) {
+
+                // Se precisar descer, descer os aliens e resetar o timer (evita desincronismo)
+                if(precisaDescer) {
+                    descer_alien(aliens[i][j]);
+                    alienTimer = ALIENTIMERDEFAULT;
+                }
+                else
+                {
+                    //Se não precisar descer, mover normalmente (já que a direção já foi invertida)
+                    float pos = get_pos_alienX(aliens[i][j]);
+                    mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, alienTimer);
+                }
+            }
+        }
+    }
+}
+
+// Timers
 void updateTimer() {
     alienTimer -= 1;
     if(alienTimer < 0)
-        alienTimer = ALIENTIMER;
+        alienTimer = ALIENTIMERDEFAULT;
     printf("%d\n", alienTimer);
 }

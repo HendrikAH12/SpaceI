@@ -1,7 +1,7 @@
 
 #define ALIENX 4
 #define ALIENY 5
-#define ALIENTIMER 60
+#define ALIENTIMERDEFAULT 60
 
 typedef struct Point Point;
 typedef struct TNave Nave;
@@ -27,5 +27,6 @@ bool alien_vivo(Alien *_alien);
 void desenhaAlien(Alien *_alien);
 void mover_alien(Alien *_alien, int direcao, float velocidade, float borda, int timer);
 float get_pos_alienX(Alien *_alien);
+int get_offset(Alien *_alien);
 void set_pos_alienX(Alien *_alien, float _x);
 void descer_alien(Alien *_alien);

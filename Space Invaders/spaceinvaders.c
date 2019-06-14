@@ -182,13 +182,36 @@ void desenhaAlien(Alien *_alien) {
     }
 }
 
+/*
+    - Move o alien na direção inserida, se ele estiver no intervalo determinado por borda.
+    - Se ele sair do intervalo, voltar para a posição mais extrema (borda ou -borda)
+    - Fazer isso a cada 60 ticks.
+*/
 void mover_alien(Alien *_alien, int direcao, float velocidade, float borda, int timer) {
-    if(timer - _alien->offsetTimer <= 0) {
-        if(direcao > 0)
-            _alien->pos.x += velocidade;
-        else
-            _alien->pos.x -= velocidade;
+    if(timer - _alien->offsetTimer == 0) {
+
+        if(direcao > 0) {
+
+            if(_alien->pos.x < borda)
+                _alien->pos.x += velocidade;
+            else
+                _alien->pos.x = borda;
+
+        }
+        else {
+
+            if(_alien->pos.x > -borda)
+                _alien->pos.x -= velocidade;
+            else
+                _alien->pos.x = -borda;
+
+        }
     }
+
+}
+
+int get_offset(Alien *_alien) {
+    return _alien->offsetTimer;
 }
 
 float get_pos_alienX(Alien *_alien) {

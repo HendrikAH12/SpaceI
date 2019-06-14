@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1560467980 source:c:\users\darkm\documents\github\spacei\space invaders\main.c
+1560555434 source:c:\users\darkm\documents\github\spacei\space invaders\main.c
 	<windows.h>
 	<gl/gl.h>
 	<stdio.h>
@@ -7,9 +7,28 @@
 	<time.h>
 	"spaceinvaders.h"
 
-1560464552 c:\users\darkm\documents\github\spacei\space invaders\spaceinvaders.h
+1560553341 c:\users\darkm\documents\github\spacei\space invaders\spaceinvaders.h
 
-1560464514 source:c:\users\darkm\documents\github\spacei\space invaders\spaceinvaders.c
+1560555628 source:c:\users\darkm\documents\github\spacei\space invaders\spaceinvaders.c
+	<stdio.h>
+	<math.h>
+	<stdlib.h>
+	<stdbool.h>
+	<windows.h>
+	<gl/gl.h>
+	"spaceinvaders.h"
+
+1560518609 source:c:\users\ideapad330\desktop\spacei-setup-dos-controles\space invaders\main.c
+	<windows.h>
+	<gl/gl.h>
+	<stdio.h>
+	<stdbool.h>
+	<time.h>
+	"spaceinvaders.h"
+
+1560516586 c:\users\ideapad330\desktop\spacei-setup-dos-controles\space invaders\spaceinvaders.h
+
+1560518480 source:c:\users\ideapad330\desktop\spacei-setup-dos-controles\space invaders\spaceinvaders.c
 	<stdio.h>
 	<math.h>
 	<stdlib.h>
