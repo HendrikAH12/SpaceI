@@ -229,15 +229,15 @@ void inicializarJogo() {
     nave = nave_create(-0.5, -0.6, tamanhoSprite, 3);
 
     int i, j , offset = 0;
-    float posX = -0.4, posY = 0.5;
+    float posX = -0.4, posY = 0.5; // Posições iniciais
     for(i = 0; i < ALIENX; i++) {
         for(j = 0; j < ALIENY; j++) {
             aliens[i][j] = alien_create(posX, posY, tamanhoSprite, offset);
-            posX += 0.2;
+            posX += 0.2; // Espaçamento em X
         }
-        posY -= 0.2;
-        posX = -0.4;
-        offset += 10;
+        posY -= 0.2; // Espaçamento em Y
+        posX = -0.4; // Volta para a primeira coluna
+        offset += 10; // Offset de animação
     }
 }
 
