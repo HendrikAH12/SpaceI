@@ -30,3 +30,8 @@ float get_pos_alienX(Alien *_alien);
 int get_offset(Alien *_alien);
 void set_pos_alienX(Alien *_alien, float _x);
 void descer_alien(Alien *_alien);
+
+
+void carregaTexturaTeste();
+void desenhaTeste();
+void createTeste();

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include "spaceinvaders.h"
+#include "SOIL.h"
 
 
 LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
@@ -239,6 +240,8 @@ void inicializarJogo() {
         posX = -0.4; // Volta para a primeira coluna
         offset += 10; // Offset de animação
     }
+
+    createTeste();
 }
 
 void desenhaJogo() {
@@ -251,6 +254,7 @@ void desenhaJogo() {
 
     //Desenha e processa o movimento dos aliens
     logicaAliens();
+    desenhaTeste();
 
     //Atualiza o timer
     updateTimer();
@@ -316,7 +320,6 @@ void logicaAliens() {
                 else
                 {
                     //Se não precisar descer, mover normalmente (já que a direção já foi invertida)
-                    float pos = get_pos_alienX(aliens[i][j]);
                     mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, alienTimer);
                 }
             }
@@ -329,5 +332,5 @@ void updateTimer() {
     alienTimer -= 1;
     if(alienTimer < 0)
         alienTimer = ALIENTIMERDEFAULT;
-    printf("%d\n", alienTimer);
+    //printf("%d\n", alienTimer);
 }

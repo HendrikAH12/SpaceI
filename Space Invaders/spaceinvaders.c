@@ -33,11 +33,13 @@ struct TiroInimigo {
     struct Point pos;
 };
 
+GLuint textura2d;
+
 static GLuint carregaArqTextura(char *str){
     // http://www.lonesock.net/soil.html
     GLuint tex = SOIL_load_OGL_texture
         (
-            str,
+            "\\Sprites\\inimigo1.png",
             SOIL_LOAD_AUTO,
             SOIL_CREATE_NEW_ID,
             SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y |
@@ -48,8 +50,40 @@ static GLuint carregaArqTextura(char *str){
     if(0 == tex){
         printf( "SOIL loading error: '%s'\n", SOIL_last_result() );
     }
-
     return tex;
+}
+
+void desenhaSprite(float x, float y, float tamanho, GLuint tex){
+
+    glPushMatrix();
+
+    glColor3f(1.0, 1.0, 1.0);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, tex);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glBegin(GL_QUADS);
+        glTexCoord2f(0.0f,1.0f); glVertex2f(x - tamanho, y + tamanho);
+        glTexCoord2f(1.0f,1.0f); glVertex2f(x + tamanho, y + tamanho);
+        glTexCoord2f(1.0f,0.0f); glVertex2f(x + tamanho, y - tamanho);
+        glTexCoord2f(0.0f,0.0f); glVertex2f(x - tamanho, y - tamanho);
+    glEnd();
+
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
+
+    glPopMatrix();
+
+}
+
+void createTeste() {
+    carregaArqTextura("");
+}
+
+void desenhaTeste() {
+    desenhaSprite(0, 0, 0.2f, textura2d);
 }
 
 //===============================================================================
