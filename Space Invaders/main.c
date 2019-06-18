@@ -70,10 +70,10 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
     ShowWindow(hwnd, nCmdShow);
 
-    inicializarJogo();
-
     /* enable OpenGL for the window */
     EnableOpenGL(hwnd, &hDC, &hRC);
+
+    inicializarJogo();
 
     /* program main loop */
     while (!bQuit)

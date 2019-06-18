@@ -39,7 +39,7 @@ static GLuint carregaArqTextura(char *str){
     // http://www.lonesock.net/soil.html
     GLuint tex = SOIL_load_OGL_texture
         (
-            "\\Sprites\\inimigo1.png",
+            ".//Sprites//inimigo.png",
             SOIL_LOAD_AUTO,
             SOIL_CREATE_NEW_ID,
             SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y |
@@ -79,7 +79,7 @@ void desenhaSprite(float x, float y, float tamanho, GLuint tex){
 }
 
 void createTeste() {
-    carregaArqTextura("");
+    textura2d = carregaArqTextura("");
 }
 
 void desenhaTeste() {
