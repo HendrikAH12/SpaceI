@@ -14,14 +14,12 @@ struct Point {
 struct TNave {
     bool vivo;
     int vidas, pontos;
-    float tamanho;
     struct Point pos;
 };
 
 struct TAlien {
     bool vivo;
-    int offsetTimer;
-    float tamanho;
+    int offsetTimer, tipo;
     struct Point pos;
 };
 
@@ -33,13 +31,27 @@ struct TiroInimigo {
     struct Point pos;
 };
 
-GLuint textura2d;
+GLuint charSprites[4];
+GLuint morteSprites[3];
+
+static GLuint carregaArqTextura(char *str);
+
+void carregarTexturas() {
+    char str[30] = ".//Sprites//nave.png";
+    charSprites[0] = carregaArqTextura(str);
+
+    int i;
+    for(i = 1; i <= 3; i++) {
+        sprintf(str, ".//Sprites//inimigo%d.png", i);
+        charSprites[i] = carregaArqTextura(str);
+    }
+}
 
 static GLuint carregaArqTextura(char *str){
     // http://www.lonesock.net/soil.html
     GLuint tex = SOIL_load_OGL_texture
         (
-            ".//Sprites//inimigo.png",
+            str,
             SOIL_LOAD_AUTO,
             SOIL_CREATE_NEW_ID,
             SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y |
@@ -78,24 +90,15 @@ void desenhaSprite(float x, float y, float tamanho, GLuint tex){
 
 }
 
-void createTeste() {
-    textura2d = carregaArqTextura("");
-}
-
-void desenhaTeste() {
-    desenhaSprite(0, 0, 0.2f, textura2d);
-}
-
 //===============================================================================
 
 // Aloca espaço da memória para uma nave, e associa os valores dados à ela.
-Nave* nave_create(float _x, float _y, float naveTamanho, int numVidas) {
+Nave* nave_create(float _x, float _y, int numVidas) {
     Nave* _nave = malloc(sizeof(Nave));
     if(_nave != NULL) {
         _nave->vivo = true;
         _nave->pos.x = _x;
         _nave->pos.y = _y;
-        _nave->tamanho = naveTamanho;
         _nave->vidas = numVidas;
     }
     return _nave;
@@ -143,7 +146,6 @@ void desenhaNave(Nave *_nave) {
 
         float posX = _nave->pos.x;
         float posY = _nave->pos.y;
-        float tam =  _nave->tamanho;
 
         /*
                     ---------------
@@ -156,16 +158,7 @@ void desenhaNave(Nave *_nave) {
                             |-----|
                                tam
         */
-
-        glBegin(GL_QUADS);
-
-            glColor3f(1, 0.0f, 0.0f);   glVertex2f(posX + tam, posY + tam);
-            glColor3f(0.0f, 1, 0.0f);   glVertex2f(posX + tam, posY - tam);
-            glColor3f(0.0f, 0.0f, 1);   glVertex2f(posX - tam, posY - tam);
-            glColor3f(1, 0.0f, 1);   glVertex2f(posX - tam, posY + tam);
-
-        glEnd();
-
+        desenhaSprite(posX, posY, TAMANHO, charSprites[0]);
     }
 }
 
@@ -188,14 +181,14 @@ void set_pos_nave(Nave *_nave, float posX, float posY) {
 
 //===============================================================================
 
-Alien* alien_create(float _x, float _y, float _tamanho, int offset) {
+Alien* alien_create(float _x, float _y, int offset, int alienTipo) {
     Alien* _alien = malloc(sizeof(Alien));
     if(_alien != NULL) {
         _alien->vivo = true;
         _alien->pos.x = _x;
         _alien->pos.y = _y;
-        _alien->tamanho = _tamanho;
         _alien->offsetTimer = offset;
+        _alien->tipo = alienTipo;
     }
     return _alien;
 }
@@ -210,7 +203,7 @@ void desenhaAlien(Alien *_alien) {
 
         float posX = _alien->pos.x;
         float posY = _alien->pos.y;
-        float tam =  _alien->tamanho;
+        int alienTipo = _alien->tipo;
 
         /*
                     ---------------
@@ -223,16 +216,7 @@ void desenhaAlien(Alien *_alien) {
                             |-----|
                                tam
         */
-
-        glBegin(GL_QUADS);
-
-            glColor3f(1, 0.0f, 0.0f);   glVertex2f(posX + tam, posY + tam);
-            glColor3f(0.0f, 1, 0.0f);   glVertex2f(posX + tam, posY - tam);
-            glColor3f(0.0f, 0.0f, 1);   glVertex2f(posX - tam, posY - tam);
-            glColor3f(1, 0.0f, 1);   glVertex2f(posX - tam, posY + tam);
-
-        glEnd();
-
+        desenhaSprite(posX, posY, TAMANHO, charSprites[alienTipo]);
     }
 }
 

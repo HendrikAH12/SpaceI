@@ -15,7 +15,7 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add library="libSOIL.a" />
+					<Add library="lib/libSOIL.a" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -28,7 +28,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="libSOIL.a" />
+					<Add library="lib/libSOIL.a" />
 				</Linker>
 			</Target>
 		</Build>
@@ -36,7 +36,7 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Linker>
-			<Add library="libSOIL.a" />
+			<Add library="lib/libSOIL.a" />
 			<Add library="opengl32" />
 			<Add library="glu32" />
 			<Add library="gdi32" />
