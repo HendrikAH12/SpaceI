@@ -13,6 +13,7 @@ void DisableOpenGL(HWND, HDC, HGLRC);
 
 //========================================================
 int dirMovimento = 0, dirAlien = 1; //Variável para o reconhecimento de tecla
+bool atirar = false;
 int alienTimer = ALIENTIMERDEFAULT;
 int score = 0;
 int tiroContador = 0, tiroContadorAlien = 0, tiroCooldown = 0;
@@ -160,11 +161,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     break;
 
                 case VK_SPACE:
-                    nave_atira(nave, tirosJogador[tiroContador]);
-                    tiroContador++;
-                    if(tiroContador >= NUMTIROSALIADOS)
-                        tiroContador = 0;
-                    printf("%d\n", tiroContador);
+                    atirar = true;
                     break;
 
                 case VK_ESCAPE:
@@ -184,6 +181,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
                 case VK_RIGHT:
                     dirMovimento = 0;
+                    break;
+
+                case VK_SPACE:
+                    atirar = false;
                     break;
 
             }
@@ -272,6 +273,16 @@ void desenhaJogo() {
 
     //Desenha o personagem jogável
     desenhaNave(nave);
+
+    if(tiroCooldown == 0 && atirar) {
+        nave_atira(nave, tirosJogador[tiroContador]);
+        tiroContador++;
+        if(tiroContador >= NUMTIROSALIADOS)
+            tiroContador = 0;
+
+        tiroCooldown = COOLDOWN;
+        printf("%d\n", tiroContador);
+    }
 
     int i, j, k;
     for(i = 0; i < NUMTIROSALIADOS; i++) {
@@ -366,5 +377,9 @@ void logicaAliens() {
 void updateTimer() {
     if(alienTimer < 0)
         alienTimer = ALIENTIMERDEFAULT;
+
+    if(tiroCooldown > 0) {
+        tiroCooldown -= 1;
+    }
     //printf("%d\n", alienTimer);
 }
