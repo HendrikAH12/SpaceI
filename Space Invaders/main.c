@@ -16,17 +16,18 @@ int dirMovimento = 0, dirAlien = 1; //Variável para o reconhecimento de tecla
 bool atirar = false;
 int alienTimer = ALIENTIMERDEFAULT;
 int score = 0;
-int tiroContador = 0, tiroContadorAlien = 0, tiroCooldown = 0;
+int tiroContadorAlien = 0;
 float borderX = 0.6, borderY = 0.8, vel_jogador = 0.01, vel_alien = 0.04; //Setup do personagem e do mapa jog�vel
 Nave *nave; //Ponteiro da nave
 Alien *aliens[ALIENX][ALIENY]; //Ponteiros dos aliens
-Tiro *tirosJogador[NUMTIROSALIADOS];
+Tiro *tiroJogador;
 Tiro *tirosAliens[NUMTIROSINIMIGOS];
 //========================================================
 
 void inicializarJogo();
 void desenhaJogo();
 void logicaAliens();
+void logicaTiros();
 void updateTimer();
 
 int WINAPI WinMain(HINSTANCE hInstance,
@@ -242,14 +243,9 @@ void inicializarJogo() {
 
     nave = nave_create(-0.5, -0.7, 3);
 
-    int i, num = 0;
-    for(i = 0; i < NUMTIROSALIADOS; i++) {
-        tirosJogador[i] = instanciar_tiro(0, 0, true);
-        num++;
-    }
-    printf("%d tiros instanciados!\n", num);
+    tiroJogador = instanciar_tiro(0, 0, true);
 
-    int j, offset = 0, tipo = 1;
+    int i, j, offset = 0, tipo = 1;
     float posX = -0.4, posY = 0.5; // Posições iniciais
     for(i = 0; i < ALIENX; i++) {
 
@@ -274,31 +270,11 @@ void desenhaJogo() {
     //Desenha o personagem jogável
     desenhaNave(nave);
 
-    if(tiroCooldown == 0 && atirar) {
-        nave_atira(nave, tirosJogador[tiroContador]);
-        tiroContador++;
-        if(tiroContador >= NUMTIROSALIADOS)
-            tiroContador = 0;
-
-        tiroCooldown = COOLDOWN;
-        printf("%d\n", tiroContador);
-    }
-
-    int i, j, k;
-    for(i = 0; i < NUMTIROSALIADOS; i++) {
-            if(tiro_ativo(tirosJogador[i])) {
-            mover_tiro(tirosJogador[i]);
-            desenhaTiro(tirosJogador[i]);
-            for (j = 0; j < ALIENX; j++) {
-                for (k = 0; k < ALIENY; k++) {
-                    detectar_colisao_alien(aliens[j][k], tirosJogador[i], &score);
-                }
-            }
-        }
-    }
-
     //Desenha e processa o movimento dos aliens
     logicaAliens();
+
+    //Processa, desenha e movimenta o tiro dos aliens e dos aliados
+    logicaTiros();
 
     //Atualiza o timer
     updateTimer();
@@ -373,13 +349,29 @@ void logicaAliens() {
     alienTimer -= 1;
 }
 
+void logicaTiros() {
+
+    if(atirar) {
+        if(!tiro_ativo(tiroJogador)) {
+            nave_atira(nave, tiroJogador);
+        }
+    }
+
+    int i, j;
+    if(tiro_ativo(tiroJogador)) {
+        mover_tiro(tiroJogador);
+        desenhaTiro(tiroJogador);
+        for (i = 0; i < ALIENX; i++) {
+            for (j = 0; j < ALIENY; j++) {
+                detectar_colisao_alien(aliens[i][j], tiroJogador, &score);
+            }
+        }
+    }
+}
+
 // Timers
 void updateTimer() {
     if(alienTimer < 0)
         alienTimer = ALIENTIMERDEFAULT;
-
-    if(tiroCooldown > 0) {
-        tiroCooldown -= 1;
-    }
     //printf("%d\n", alienTimer);
 }

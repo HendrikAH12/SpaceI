@@ -2,9 +2,9 @@
 #define ALIENX 5
 #define ALIENY 7
 #define ALIENTIMERDEFAULT 60
-#define COOLDOWN 30
+#define COOLDOWN 80
 #define TAMANHO 0.045
-#define NUMTIROSALIADOS 10
+#define NUMTIROSALIADOS 2
 #define NUMTIROSINIMIGOS 10
 #define BORDAX 0.6
 #define BORDAY 0.8
@@ -13,6 +13,7 @@ typedef struct Point Point;
 typedef struct TNave Nave;
 typedef struct TAlien Alien;
 typedef struct Tiro Tiro;
+typedef struct Efeito Efeito;
 
 void carregarTexturas();
 

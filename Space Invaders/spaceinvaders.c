@@ -28,6 +28,11 @@ struct Tiro {
     struct Point pos;
 };
 
+struct Efeito {
+    struct Point pos;
+    GLuint animSprites[4];
+};
+
 GLuint charSprites[4];
 GLuint morteSprites[3];
 
