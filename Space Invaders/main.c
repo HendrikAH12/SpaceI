@@ -12,11 +12,14 @@ void EnableOpenGL(HWND hwnd, HDC*, HGLRC*);
 void DisableOpenGL(HWND, HDC, HGLRC);
 
 //========================================================
-int dirMovimento = 0, dirAlien = 1; //Vari�vel para o reconhecimento de tecla
+int dirMovimento = 0, dirAlien = 1; //Variável para o reconhecimento de tecla
 int alienTimer = ALIENTIMERDEFAULT;
+int tiroContador = 0, tiroContadorAlien = 0;
 float borderX = 0.6, borderY = 0.8, vel_jogador = 0.01, vel_alien = 0.04; //Setup do personagem e do mapa jog�vel
 Nave *nave; //Ponteiro da nave
 Alien *aliens[ALIENX][ALIENY]; //Ponteiros dos aliens
+Tiro *tirosJogador[NUMTIROSALIADOS];
+Tiro *tirosAliens[NUMTIROSINIMIGOS];
 //========================================================
 
 void inicializarJogo();
@@ -102,13 +105,13 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
             glPushMatrix();
 
-            //Desenha o quadrado da �rea jog�vel
+            //Desenha o quadrado da área jogável
             glBegin(GL_QUADS);
 
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + TAMANHO, borderY + TAMANHO);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + TAMANHO, -borderY - TAMANHO);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - TAMANHO, -borderY - TAMANHO);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - TAMANHO, borderY + TAMANHO);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + TAMANHO, borderY);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + TAMANHO, -borderY);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - TAMANHO, -borderY);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - TAMANHO, borderY);
 
             glEnd();
 
@@ -156,7 +159,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     break;
 
                 case VK_SPACE:
-                    //dirAlien *= -1;
+                    nave_atira(nave, tirosJogador[tiroContador]);
+                    tiroContador++;
+                    if(tiroContador >= NUMTIROSALIADOS)
+                        tiroContador = 0;
+                    printf("%d\n", tiroContador);
                     break;
 
                 case VK_ESCAPE:
@@ -233,7 +240,14 @@ void inicializarJogo() {
 
     nave = nave_create(-0.5, -0.7, 3);
 
-    int i, j , offset = 0, tipo = 1;
+    int i, num = 0;
+    for(i = 0; i < NUMTIROSALIADOS; i++) {
+        tirosJogador[i] = instanciar_tiro(0, 0, true);
+        num++;
+    }
+    printf("%d tiros instanciados!\n", num);
+
+    int j, offset = 0, tipo = 1;
     float posX = -0.4, posY = 0.5; // Posições iniciais
     for(i = 0; i < ALIENX; i++) {
 
@@ -242,7 +256,7 @@ void inicializarJogo() {
 
         for(j = 0; j < ALIENY; j++) {
             aliens[i][j] = alien_create(posX, posY, offset, 4-tipo); // 4 - tipo para garantir os aliens corretos
-            posX += 0.15; // Espacamento em X
+            posX += 0.15; // Espaçamento em X
         }
         posY -= 0.1; // Espaçamento em Y
         posX = -0.4; // Volta para a primeira coluna
@@ -255,8 +269,14 @@ void desenhaJogo() {
     //Funcao principal de movimento do personagem jogavel
     mover_nave(nave, dirMovimento, vel_jogador, borderX);
 
-    //Desenha o personagem jogavel
+    //Desenha o personagem jogável
     desenhaNave(nave);
+
+    int i;
+    for(i = 0; i < NUMTIROSALIADOS; i++) {
+        mover_tiro(tirosJogador[i]);
+        desenhaTiro(tirosJogador[i]);
+    }
 
     //Desenha e processa o movimento dos aliens
     logicaAliens();

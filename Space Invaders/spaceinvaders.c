@@ -24,10 +24,7 @@ struct TAlien {
 };
 
 struct Tiro {
-    struct Point pos;
-};
-
-struct TiroInimigo {
+    bool ativo, aliado;
     struct Point pos;
 };
 
@@ -92,7 +89,7 @@ void desenhaSprite(float x, float y, float tamanho, GLuint tex){
 
 //===============================================================================
 
-// Aloca espaço da memória para uma nave, e associa os valores dados à ela.
+// Aloca espaï¿½o da memï¿½ria para uma nave, e associa os valores dados ï¿½ ela.
 Nave* nave_create(float _x, float _y, int numVidas) {
     Nave* _nave = malloc(sizeof(Nave));
     if(_nave != NULL) {
@@ -111,10 +108,10 @@ int quantas_vidas(Nave *_nave) {
 void mover_nave(Nave *_nave, int direcao_movimento, float vel_movimento, float limite) {
 
     /*
-    Controle da posição:
-    - Em cada frame, checar se o personagem está dentro da borda (quadrado de border x border de tamanho)
-        - Se sim, analisar a variável direcao_movimento (controlada pelas setas)
-            - Se a variável for igual a 1, mover para a direita em vel_movimento unidades por frame.
+    Controle da posiÃ§Ã£o:
+    - Em cada frame, checar se o personagem estÃ¡ dentro da borda (quadrado de border x border de tamanho)
+        - Se sim, analisar a variÃ¡vel direcao_movimento (controlada pelas setas)
+            - Se a variÃ¡vel for igual a 1, mover para a direita em vel_movimento unidades por frame.
             - Se for igual a -1, mover para a esquerda em vel_movimento unidades por frame.
             - Se nem um nem outro, fazer nada.
     - Depois, garantir que o personagem esteja dentro das bordas.
@@ -149,7 +146,7 @@ void desenhaNave(Nave *_nave) {
 
         /*
                     ---------------
-                    |             |       O é o centro (marcado pelo Point pos da nave.
+                    |             |       O ï¿½ o centro (marcado pelo Point pos da nave.
                     |             |       A caixa do sprite tem um lado = 2 * tamanho.
                   - |      O      |
               tam | |             |
@@ -160,6 +157,12 @@ void desenhaNave(Nave *_nave) {
         */
         desenhaSprite(posX, posY, TAMANHO, charSprites[0]);
     }
+}
+
+void nave_atira(Nave *_nave, Tiro *_tiro) {
+    _tiro->pos.x = _nave->pos.x;
+    _tiro->pos.y = _nave->pos.y;
+    _tiro->ativo = true;
 }
 
 void dano_nave(Nave *_nave) {
@@ -207,7 +210,7 @@ void desenhaAlien(Alien *_alien) {
 
         /*
                     ---------------
-                    |             |       O é o centro (marcado pelo Point pos da nave.
+                    |             |       O ï¿½ o centro (marcado pelo Point pos da nave.
                     |             |       A caixa do sprite tem um lado = 2 * tamanho.
                   - |      O      |
               tam | |             |
@@ -221,8 +224,8 @@ void desenhaAlien(Alien *_alien) {
 }
 
 /*
-    - Move o alien na direção inserida, se ele estiver no intervalo determinado por borda.
-    - Se ele sair do intervalo, voltar para a posição mais extrema (borda ou -borda)
+    - Move o alien na direÃ§Ã£o inserida, se ele estiver no intervalo determinado por borda.
+    - Se ele sair do intervalo, voltar para a posiÃ§Ã£o mais extrema (borda ou -borda)
     - Fazer isso a cada 60 ticks.
 */
 void mover_alien(Alien *_alien, int direcao, float velocidade, float borda, int timer) {
@@ -267,4 +270,54 @@ void descer_alien(Alien *_alien) {
 void matar_alien(Alien *_alien) {
     _alien->vivo = false;
     free(_alien);
+}
+
+//===============================================================================
+
+Tiro* instanciar_tiro(float posX, float posY, bool _aliado) {
+    Tiro* tiro = malloc(sizeof(Tiro));
+    if(tiro != NULL) {
+        tiro->pos.x = posX;
+        tiro->pos.y = posY;
+        tiro->aliado = _aliado;
+        tiro->ativo = false;
+    }
+    return tiro;
+}
+
+void desenhaTiro(Tiro *_tiro) {
+
+    if(_tiro != NULL && _tiro->ativo) {
+        float posX = _tiro->pos.x;
+        float posY = _tiro->pos.y;
+
+        glBegin(GL_QUADS);
+
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.005, posY + 0.03);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.005, posY - 0.03);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.005, posY - 0.03);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.005, posY + 0.03);
+
+        glEnd();
+    }
+}
+
+void mover_tiro(Tiro *_tiro) {
+    if(_tiro->ativo) {
+        if(_tiro->aliado) {
+            _tiro->pos.y += 0.01;
+        } else {
+            _tiro->pos.y -= 0.01;
+        }
+
+        if(_tiro->pos.y + 0.04 >= BORDAY || _tiro->pos.y <= -BORDAY) {
+            guardar_tiro(_tiro);
+        }
+    }
+}
+
+void guardar_tiro(Tiro *_tiro) {
+    _tiro->pos.x = 1;
+    _tiro->pos.y = 1;
+    _tiro->ativo = false;
 }
