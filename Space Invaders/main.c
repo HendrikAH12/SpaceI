@@ -14,7 +14,8 @@ void DisableOpenGL(HWND, HDC, HGLRC);
 //========================================================
 int dirMovimento = 0, dirAlien = 1; //Variável para o reconhecimento de tecla
 int alienTimer = ALIENTIMERDEFAULT;
-int tiroContador = 0, tiroContadorAlien = 0;
+int score = 0;
+int tiroContador = 0, tiroContadorAlien = 0, tiroCooldown = 0;
 float borderX = 0.6, borderY = 0.8, vel_jogador = 0.01, vel_alien = 0.04; //Setup do personagem e do mapa jog�vel
 Nave *nave; //Ponteiro da nave
 Alien *aliens[ALIENX][ALIENY]; //Ponteiros dos aliens
@@ -272,10 +273,17 @@ void desenhaJogo() {
     //Desenha o personagem jogável
     desenhaNave(nave);
 
-    int i;
+    int i, j, k;
     for(i = 0; i < NUMTIROSALIADOS; i++) {
-        mover_tiro(tirosJogador[i]);
-        desenhaTiro(tirosJogador[i]);
+            if(tiro_ativo(tirosJogador[i])) {
+            mover_tiro(tirosJogador[i]);
+            desenhaTiro(tirosJogador[i]);
+            for (j = 0; j < ALIENX; j++) {
+                for (k = 0; k < ALIENY; k++) {
+                    detectar_colisao_alien(aliens[j][k], tirosJogador[i], &score);
+                }
+            }
+        }
     }
 
     //Desenha e processa o movimento dos aliens
@@ -350,11 +358,12 @@ void logicaAliens() {
             }
         }
     }
+
+    alienTimer -= 1;
 }
 
 // Timers
 void updateTimer() {
-    alienTimer -= 1;
     if(alienTimer < 0)
         alienTimer = ALIENTIMERDEFAULT;
     //printf("%d\n", alienTimer);

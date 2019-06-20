@@ -41,5 +41,7 @@ void descer_alien(Alien *_alien);
 //============ Tiro =======================================================================
 
 Tiro* instanciar_tiro(float posX, float posY, bool _aliado);
+bool tiro_ativo(Tiro *_tiro);
 void desenhaTiro(Tiro *_tiro);
 void mover_tiro(Tiro *_tiro);
+void detectar_colisao_alien(Alien *_alien, Tiro *_tiro, int *score);

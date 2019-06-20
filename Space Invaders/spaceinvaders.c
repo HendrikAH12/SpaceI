@@ -146,9 +146,9 @@ void desenhaNave(Nave *_nave) {
 
         /*
                     ---------------
-                    |             |       O � o centro (marcado pelo Point pos da nave.
+                    |             |       X é o centro (marcado pelo Point pos da nave.
                     |             |       A caixa do sprite tem um lado = 2 * tamanho.
-                  - |      O      |
+                  - |      X      |
               tam | |             |
                   | |             |
                   - ---------------
@@ -267,13 +267,19 @@ void descer_alien(Alien *_alien) {
     _alien->pos.y -= 0.1f;
 }
 
+// Desativa o alien
 void matar_alien(Alien *_alien) {
     _alien->vivo = false;
-    free(_alien);
 }
 
 //===============================================================================
 
+/*
+    Cria uma instância de tiro.
+    - Cada tiro tem um bool "aliado" que indica se o tiro vem dos aliens ou do jogador
+    - Se aliado é true -> o tiro se move para cima
+    - Se não -> o tiro se move para baixo
+*/
 Tiro* instanciar_tiro(float posX, float posY, bool _aliado) {
     Tiro* tiro = malloc(sizeof(Tiro));
     if(tiro != NULL) {
@@ -285,9 +291,13 @@ Tiro* instanciar_tiro(float posX, float posY, bool _aliado) {
     return tiro;
 }
 
+bool tiro_ativo(Tiro *_tiro) {
+    return _tiro->ativo;
+}
+
 void desenhaTiro(Tiro *_tiro) {
 
-    if(_tiro != NULL && _tiro->ativo) {
+    if(_tiro != NULL) {
         float posX = _tiro->pos.x;
         float posY = _tiro->pos.y;
 
@@ -303,21 +313,50 @@ void desenhaTiro(Tiro *_tiro) {
 }
 
 void mover_tiro(Tiro *_tiro) {
-    if(_tiro->ativo) {
-        if(_tiro->aliado) {
-            _tiro->pos.y += 0.01;
-        } else {
-            _tiro->pos.y -= 0.01;
-        }
 
-        if(_tiro->pos.y + 0.04 >= BORDAY || _tiro->pos.y <= -BORDAY) {
-            guardar_tiro(_tiro);
-        }
+    if(_tiro->aliado) {
+        _tiro->pos.y += 0.01;
+    } else {
+        _tiro->pos.y -= 0.01;
     }
+
+    if(_tiro->pos.y + 0.04 >= BORDAY || _tiro->pos.y <= -BORDAY) {
+        guardar_tiro(_tiro);
+    }
+
 }
 
+// Armazena o tiro fora da tela para uso posterior (evita a necessidade de criar novos tiros)
 void guardar_tiro(Tiro *_tiro) {
     _tiro->pos.x = 1;
     _tiro->pos.y = 1;
     _tiro->ativo = false;
+}
+
+/*
+    Analisa a posição das bordas dos alienígenas, criando um intervalo em x e em y.
+    Depois disso, compara a parte superior e inferior do tiro para analisar se o tiro
+    colidiu com o alien.
+    Se sim, mata o alien, aumenta a score e guarda o tiro.
+*/
+void detectar_colisao_alien(Alien *_alien, Tiro *_tiro, int *score) {
+
+    float limiteAlienCima = _alien->pos.y + TAMANHO;
+    float limiteAlienBaixo = _alien->pos.y - TAMANHO;
+    float limiteAlienEsquerda = _alien->pos.x - TAMANHO;
+    float limiteAlienDireita = _alien->pos.x + TAMANHO;
+
+    if(_tiro->pos.x >= limiteAlienEsquerda && _tiro->pos.x <= limiteAlienDireita) {
+        if(_tiro->pos.y + 0.03 <= limiteAlienCima && _tiro->pos.y + 0.03 >= limiteAlienBaixo && _alien->vivo) {
+            matar_alien(_alien);
+            *score += _alien->tipo * 10;
+            guardar_tiro(_tiro);
+        }
+        if(_tiro->pos.y - 0.03 <= limiteAlienCima && _tiro->pos.y - 0.03 >= limiteAlienBaixo && _alien->vivo) {
+            matar_alien(_alien);
+            *score += _alien->tipo * 10;
+            guardar_tiro(_tiro);
+        }
+    }
+
 }
