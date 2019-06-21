@@ -299,24 +299,23 @@ void logicaAliens() {
                 desenhaAlien(aliens[i][j]); //Funcao principal de desenho.
 
                 // Se este if nao estiver aqui, os aliens descem antes que todos cheguem na borda.
-                if(alienTimer - get_offset(aliens[i][j]) == 0) {
+                if(alienTimer == 0) {
 
                     float pos = get_pos_alienX(aliens[i][j]);
 
                     //Ativar a flag de descida, inverter a direcao e sair do cheque de posicao, se o aliens chegarem na borda.
-                    if(pos + 2 * TAMANHO > borderX && dirAlien == 1)
+                    if(pos + TAMANHO > borderX && dirAlien == 1)
                     {
                         precisaDescer = true;
                         dirAlien = -1;
                         break;
                     }
-                    else if(pos - 2 * TAMANHO < -borderX && dirAlien == -1)
+                    else if(pos - TAMANHO < -borderX && dirAlien == -1)
                     {
                         precisaDescer = true;
                         dirAlien = 1;
                         break;
                     }
-
                 }
             }
         }
@@ -339,8 +338,20 @@ void logicaAliens() {
                 }
                 else
                 {
+
                     //Se nao precisar descer, mover normalmente (ja que a direcao ja foi invertida)
-                    mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, alienTimer);
+                    //Mover em determinado momento do timer de acordo com a linha
+                    if(i == 0 && alienTimer == 10)
+                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, 0);
+                    if(i == 1 && alienTimer == 20)
+                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, 0);
+                    if(i == 2 && alienTimer == 30)
+                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, 0);
+                    if(i == 3 && alienTimer == 40)
+                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, 0);
+                    if(i == 4 && alienTimer == 50)
+                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, 0);
+
                 }
             }
         }

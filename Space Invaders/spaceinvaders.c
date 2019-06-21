@@ -234,7 +234,7 @@ void desenhaAlien(Alien *_alien) {
     - Fazer isso a cada 60 ticks.
 */
 void mover_alien(Alien *_alien, int direcao, float velocidade, float borda, int timer) {
-    if(timer - _alien->offsetTimer == 0) {
+    if(timer == 0) {
 
         if(direcao > 0) {
 
