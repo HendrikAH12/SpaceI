@@ -31,12 +31,11 @@ void set_pos_nave(Nave *_nave, float posX, float posY);
 
 //============ Alien =======================================================================
 
-Alien* alien_create(float _x, float _y, int offset, int alienTipo);
+Alien* alien_create(float _x, float _y, int alienTipo);
 bool alien_vivo(Alien *_alien);
 void desenhaAlien(Alien *_alien);
-void mover_alien(Alien *_alien, int direcao, float velocidade, float borda, int timer);
+void mover_alien(Alien *_alien, int direcao, float velocidade, float borda);
 float get_pos_alienX(Alien *_alien);
-int get_offset(Alien *_alien);
 void set_pos_alienX(Alien *_alien, float _x);
 void descer_alien(Alien *_alien);
 

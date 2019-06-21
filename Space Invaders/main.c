@@ -245,7 +245,7 @@ void inicializarJogo() {
 
     tiroJogador = instanciar_tiro(0, 0, true);
 
-    int i, j, offset = 0, tipo = 1;
+    int i, j, tipo = 1;
     float posX = -0.4, posY = 0.5; // Posições iniciais
     for(i = 0; i < ALIENX; i++) {
 
@@ -253,12 +253,11 @@ void inicializarJogo() {
           tipo++;
 
         for(j = 0; j < ALIENY; j++) {
-            aliens[i][j] = alien_create(posX, posY, offset, 4-tipo); // 4 - tipo para garantir os aliens corretos
+            aliens[i][j] = alien_create(posX, posY, 4-tipo); // 4 - tipo para garantir os aliens corretos
             posX += 0.15; // Espaçamento em X
         }
         posY -= 0.1; // Espaçamento em Y
         posX = -0.4; // Volta para a primeira coluna
-        offset += 10; // Offset de animação
     }
 }
 
@@ -299,6 +298,7 @@ void logicaAliens() {
                 desenhaAlien(aliens[i][j]); //Funcao principal de desenho.
 
                 // Se este if nao estiver aqui, os aliens descem antes que todos cheguem na borda.
+                // Além disso, sincroniza para eles descerem na hora que o timer resetar.
                 if(alienTimer == 0) {
 
                     float pos = get_pos_alienX(aliens[i][j]);
@@ -342,15 +342,15 @@ void logicaAliens() {
                     //Se nao precisar descer, mover normalmente (ja que a direcao ja foi invertida)
                     //Mover em determinado momento do timer de acordo com a linha
                     if(i == 0 && alienTimer == 10)
-                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, 0);
+                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX);
                     if(i == 1 && alienTimer == 20)
-                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, 0);
+                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX);
                     if(i == 2 && alienTimer == 30)
-                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, 0);
+                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX);
                     if(i == 3 && alienTimer == 40)
-                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, 0);
+                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX);
                     if(i == 4 && alienTimer == 50)
-                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX, 0);
+                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX);
 
                 }
             }

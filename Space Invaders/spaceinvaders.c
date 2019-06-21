@@ -19,7 +19,7 @@ struct TNave {
 
 struct TAlien {
     bool vivo;
-    int offsetTimer, tipo;
+    int tipo;
     struct Point pos;
 };
 
@@ -189,13 +189,12 @@ void set_pos_nave(Nave *_nave, float posX, float posY) {
 
 //===============================================================================
 
-Alien* alien_create(float _x, float _y, int offset, int alienTipo) {
+Alien* alien_create(float _x, float _y, int alienTipo) {
     Alien* _alien = malloc(sizeof(Alien));
     if(_alien != NULL) {
         _alien->vivo = true;
         _alien->pos.x = _x;
         _alien->pos.y = _y;
-        _alien->offsetTimer = offset;
         _alien->tipo = alienTipo;
     }
     return _alien;
@@ -233,31 +232,22 @@ void desenhaAlien(Alien *_alien) {
     - Se ele sair do intervalo, voltar para a posição mais extrema (borda ou -borda)
     - Fazer isso a cada 60 ticks.
 */
-void mover_alien(Alien *_alien, int direcao, float velocidade, float borda, int timer) {
-    if(timer == 0) {
+void mover_alien(Alien *_alien, int direcao, float velocidade, float borda) {
 
-        if(direcao > 0) {
+    if(direcao > 0) {
+        if(_alien->pos.x < borda)
+            _alien->pos.x += velocidade;
+        else
+            _alien->pos.x = borda;
 
-            if(_alien->pos.x < borda)
-                _alien->pos.x += velocidade;
-            else
-                _alien->pos.x = borda;
-
-        }
-        else {
-
-            if(_alien->pos.x > -borda)
-                _alien->pos.x -= velocidade;
-            else
-                _alien->pos.x = -borda;
-
-        }
     }
+    else {
 
-}
-
-int get_offset(Alien *_alien) {
-    return _alien->offsetTimer;
+        if(_alien->pos.x > -borda)
+            _alien->pos.x -= velocidade;
+        else
+            _alien->pos.x = -borda;
+    }
 }
 
 float get_pos_alienX(Alien *_alien) {
