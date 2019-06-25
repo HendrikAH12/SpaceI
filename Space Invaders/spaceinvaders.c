@@ -13,24 +13,19 @@ struct Point {
 
 struct TNave {
     bool vivo;
-    int vidas, pontos;
+    int vidas;
     struct Point pos;
 };
 
 struct TAlien {
     bool vivo;
-    int tipo;
+    int tipo, morteTimer;
     struct Point pos;
 };
 
 struct Tiro {
     bool ativo, aliado;
     struct Point pos;
-};
-
-struct Efeito {
-    struct Point pos;
-    GLuint animSprites[4];
 };
 
 GLuint charSprites[4];
@@ -46,6 +41,11 @@ void carregarTexturas() {
     for(i = 1; i <= 3; i++) {
         sprintf(str, ".//Sprites//inimigo%d.png", i);
         charSprites[i] = carregaArqTextura(str);
+    }
+
+    for(i = 0; i < 3; i++) {
+        sprintf(str, ".//Sprites//morte%d.png", i+1);
+        morteSprites[i] = carregaArqTextura(str);
     }
 }
 
@@ -94,7 +94,7 @@ void desenhaSprite(float x, float y, float tamanho, GLuint tex){
 
 //===============================================================================
 
-// Aloca espa�o da mem�ria para uma nave, e associa os valores dados � ela.
+// Aloca espaço da memória para uma nave, e associa os valores dados à ela.
 Nave* nave_create(float _x, float _y, int numVidas) {
     Nave* _nave = malloc(sizeof(Nave));
     if(_nave != NULL) {
@@ -110,7 +110,7 @@ int quantas_vidas(Nave *_nave) {
     return _nave->vidas;
 }
 
-void mover_nave(Nave *_nave, int direcao_movimento, float vel_movimento, float limite) {
+void mover_nave(Nave *_nave, bool setaDireita, bool setaEsquerda, float vel_movimento) {
 
     /*
     Controle da posição:
@@ -122,24 +122,20 @@ void mover_nave(Nave *_nave, int direcao_movimento, float vel_movimento, float l
     - Depois, garantir que o personagem esteja dentro das bordas.
     */
 
-    if(_nave->pos.x >= -limite && _nave->pos.x <= limite && _nave->vivo) {
-        switch(direcao_movimento) {
-            case 1:
-                _nave->pos.x += vel_movimento;
-                break;
-            case -1:
-                _nave->pos.x -= vel_movimento;
-                break;
-            default:
-                break;
+    if(_nave->pos.x >= -BORDAX - OFFSET && _nave->pos.x <= BORDAX - OFFSET && _nave->vivo) {
+        if(setaDireita) {
+            _nave->pos.x += vel_movimento;
+        }
+        if(setaEsquerda) {
+            _nave->pos.x -= vel_movimento;
         }
     }
 
     // Manter o personagem dentro das borders
-    if(_nave->pos.x < -limite)
-        _nave->pos.x = -limite;
-    if(_nave->pos.x > limite)
-        _nave->pos.x = limite;
+    if(_nave->pos.x < -BORDAX - OFFSET)
+        _nave->pos.x = -BORDAX + 0.001 - OFFSET;
+    if(_nave->pos.x > BORDAX - OFFSET)
+        _nave->pos.x = BORDAX - 0.001 - OFFSET;
 }
 
 void desenhaNave(Nave *_nave) {
@@ -196,6 +192,7 @@ Alien* alien_create(float _x, float _y, int alienTipo) {
         _alien->pos.x = _x;
         _alien->pos.y = _y;
         _alien->tipo = alienTipo;
+        _alien->morteTimer = ALIENMORTE;
     }
     return _alien;
 }
@@ -206,47 +203,64 @@ bool alien_vivo(Alien *_alien) {
 
 void desenhaAlien(Alien *_alien) {
 
-    if(_alien != NULL && _alien->vivo) {
+    if(_alien != NULL) {
 
         float posX = _alien->pos.x;
         float posY = _alien->pos.y;
-        int alienTipo = _alien->tipo;
 
-        /*
-                    ---------------
-                    |             |       O � o centro (marcado pelo Point pos da nave.
-                    |             |       A caixa do sprite tem um lado = 2 * tamanho.
-                  - |      O      |
-              tam | |             |
-                  | |             |
-                  - ---------------
-                            |-----|
-                               tam
-        */
-        desenhaSprite(posX, posY, TAMANHO, charSprites[alienTipo]);
+        if(_alien->vivo) {
+
+            int alienTipo = _alien->tipo;
+
+            /*
+                        ---------------
+                        |             |       X é o centro (marcado pelo Point pos da nave.
+                        |             |       A caixa do sprite tem um lado = 2 * tamanho.
+                      - |      X      |
+                  tam | |             |
+                      | |             |
+                      - ---------------
+                                |-----|
+                                   tam
+            */
+            desenhaSprite(posX, posY, TAMANHO, charSprites[alienTipo]);
+        }
+        else if(_alien->morteTimer != 0) {
+
+            if(_alien->morteTimer > 10 && _alien->morteTimer <= 15)
+                desenhaSprite(posX, posY, TAMANHO, morteSprites[0]);
+
+            if(_alien->morteTimer > 5 && _alien->morteTimer <= 10)
+                desenhaSprite(posX, posY, TAMANHO, morteSprites[1]);
+
+            if(_alien->morteTimer > 0 && _alien->morteTimer <= 5)
+                desenhaSprite(posX, posY, TAMANHO, morteSprites[2]);
+
+            _alien->morteTimer -= 1;
+        }
     }
 }
 
 /*
     - Move o alien na direção inserida, se ele estiver no intervalo determinado por borda.
-    - Se ele sair do intervalo, voltar para a posição mais extrema (borda ou -borda)
+    - Se ele sair do intervalo, voltar para a posição mais extrema (BORDAX ou -BORDAX, levando em conta o OFFSET)
     - Fazer isso a cada 60 ticks.
 */
-void mover_alien(Alien *_alien, int direcao, float velocidade, float borda) {
+void mover_alien(Alien *_alien, int direcao, float velocidade) {
 
     if(direcao > 0) {
-        if(_alien->pos.x < borda)
+        if(_alien->pos.x < BORDAX - OFFSET)
             _alien->pos.x += velocidade;
         else
-            _alien->pos.x = borda;
+            _alien->pos.x = BORDAX - OFFSET;
 
     }
     else {
 
-        if(_alien->pos.x > -borda)
+        if(_alien->pos.x > -BORDAX - OFFSET)
             _alien->pos.x -= velocidade;
         else
-            _alien->pos.x = -borda;
+            _alien->pos.x = -BORDAX - OFFSET;
     }
 }
 
@@ -310,9 +324,9 @@ void desenhaTiro(Tiro *_tiro) {
 void mover_tiro(Tiro *_tiro) {
 
     if(_tiro->aliado) {
-        _tiro->pos.y += 0.01;
+        _tiro->pos.y += VELOCIDADETIRO;
     } else {
-        _tiro->pos.y -= 0.01;
+        _tiro->pos.y -= VELOCIDADETIRO;
     }
 
     if(_tiro->pos.y + 0.04 >= BORDAY || _tiro->pos.y <= -BORDAY) {

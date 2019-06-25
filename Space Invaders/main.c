@@ -12,12 +12,12 @@ void EnableOpenGL(HWND hwnd, HDC*, HGLRC*);
 void DisableOpenGL(HWND, HDC, HGLRC);
 
 //========================================================
-int dirMovimento = 0, dirAlien = 1; //Variável para o reconhecimento de tecla
-bool atirar = false;
+int dirAlien = 1; //Variável para a direção dos aliens
+bool atirar = false, setaD = false, setaE = false; //Variáveis de reconhecimento de tecla
 int alienTimer = ALIENTIMERDEFAULT;
 int score = 0;
 int tiroContadorAlien = 0;
-float borderX = 0.6, borderY = 0.8, vel_jogador = 0.01, vel_alien = 0.04; //Setup do personagem e do mapa jog�vel
+float vel_jogador = 0.01, vel_alien = 0.04; //Setup das variáveis de velocidade
 Nave *nave; //Ponteiro da nave
 Alien *aliens[ALIENX][ALIENY]; //Ponteiros dos aliens
 Tiro *tiroJogador;
@@ -79,7 +79,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
     /* enable OpenGL for the window */
     EnableOpenGL(hwnd, &hDC, &hRC);
 
-    /* Inicializa��o do Jogo */
+    /* Inicialização do Jogo */
     inicializarJogo();
 
     /* program main loop */
@@ -111,10 +111,10 @@ int WINAPI WinMain(HINSTANCE hInstance,
             //Desenha o quadrado da área jogável
             glBegin(GL_QUADS);
 
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + TAMANHO, borderY);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(borderX + TAMANHO, -borderY);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - TAMANHO, -borderY);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-borderX - TAMANHO, borderY);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(BORDAX - OFFSET + TAMANHO, BORDAY);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(BORDAX - OFFSET + TAMANHO, -BORDAY);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-BORDAX - OFFSET - TAMANHO, -BORDAY);
+                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-BORDAX - OFFSET - TAMANHO, BORDAY);
 
             glEnd();
 
@@ -154,11 +154,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             switch (wParam)
             {
                 case VK_LEFT:
-                    dirMovimento = -1;
+                    setaE = true;
                     break;
 
                 case VK_RIGHT:
-                    dirMovimento = 1;
+                    setaD = true;
                     break;
 
                 case VK_SPACE:
@@ -177,11 +177,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             switch(wParam)
             {
                 case VK_LEFT:
-                    dirMovimento = 0;
+                    setaE = false;
                     break;
 
                 case VK_RIGHT:
-                    dirMovimento = 0;
+                    setaD = false;
                     break;
 
                 case VK_SPACE:
@@ -246,7 +246,7 @@ void inicializarJogo() {
     tiroJogador = instanciar_tiro(0, 0, true);
 
     int i, j, tipo = 1;
-    float posX = -0.4, posY = 0.5; // Posições iniciais
+    float posX = -0.4 - OFFSET, posY = 0.5; // Posições iniciais
     for(i = 0; i < ALIENX; i++) {
 
         if(i != 0 && i % 2 != 0) // Variar o tipo de alien de acordo com a linha
@@ -257,14 +257,14 @@ void inicializarJogo() {
             posX += 0.15; // Espaçamento em X
         }
         posY -= 0.1; // Espaçamento em Y
-        posX = -0.4; // Volta para a primeira coluna
+        posX = -0.4 - OFFSET; // Volta para a primeira coluna
     }
 }
 
 void desenhaJogo() {
 
     //Funcao principal de movimento do personagem jogavel
-    mover_nave(nave, dirMovimento, vel_jogador, borderX);
+    mover_nave(nave, setaD, setaE, vel_jogador);
 
     //Desenha o personagem jogável
     desenhaNave(nave);
@@ -293,9 +293,9 @@ void logicaAliens() {
     for(i = 0; i < ALIENX; i++) {
         for(j = 0; j < ALIENY; j++) {
 
+            desenhaAlien(aliens[i][j]); //Funcao principal de desenho.
+            
             if(alien_vivo(aliens[i][j])) {
-
-                desenhaAlien(aliens[i][j]); //Funcao principal de desenho.
 
                 // Se este if nao estiver aqui, os aliens descem antes que todos cheguem na borda.
                 // Além disso, sincroniza para eles descerem na hora que o timer resetar.
@@ -304,13 +304,13 @@ void logicaAliens() {
                     float pos = get_pos_alienX(aliens[i][j]);
 
                     //Ativar a flag de descida, inverter a direcao e sair do cheque de posicao, se o aliens chegarem na borda.
-                    if(pos + TAMANHO > borderX && dirAlien == 1)
+                    if(pos + TAMANHO > BORDAX - OFFSET && dirAlien == 1)
                     {
                         precisaDescer = true;
                         dirAlien = -1;
                         break;
                     }
-                    else if(pos - TAMANHO < -borderX && dirAlien == -1)
+                    else if(pos - TAMANHO < -BORDAX - OFFSET && dirAlien == -1)
                     {
                         precisaDescer = true;
                         dirAlien = 1;
@@ -339,18 +339,18 @@ void logicaAliens() {
                 else
                 {
 
-                    //Se nao precisar descer, mover normalmente (ja que a direcao ja foi invertida)
+                    //Se nao precisar descer, mover normalmente (já que a direção já foi invertida)
                     //Mover em determinado momento do timer de acordo com a linha
-                    if(i == 0 && alienTimer == 10)
-                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX);
-                    if(i == 1 && alienTimer == 20)
-                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX);
-                    if(i == 2 && alienTimer == 30)
-                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX);
-                    if(i == 3 && alienTimer == 40)
-                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX);
-                    if(i == 4 && alienTimer == 50)
-                        mover_alien(aliens[i][j], dirAlien, vel_alien, borderX);
+                    if(i == 0 && alienTimer == 20)
+                        mover_alien(aliens[i][j], dirAlien, vel_alien);
+                    if(i == 1 && alienTimer == 30)
+                        mover_alien(aliens[i][j], dirAlien, vel_alien);
+                    if(i == 2 && alienTimer == 40)
+                        mover_alien(aliens[i][j], dirAlien, vel_alien);
+                    if(i == 3 && alienTimer == 50)
+                        mover_alien(aliens[i][j], dirAlien, vel_alien);
+                    if(i == 4 && alienTimer == 60)
+                        mover_alien(aliens[i][j], dirAlien, vel_alien);
 
                 }
             }

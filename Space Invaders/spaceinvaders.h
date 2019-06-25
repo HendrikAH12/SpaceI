@@ -1,19 +1,20 @@
-
 #define ALIENX 5
 #define ALIENY 7
-#define ALIENTIMERDEFAULT 60
+#define ALIENTIMERDEFAULT 80
+#define ALIENMORTE 15
 #define COOLDOWN 80
 #define TAMANHO 0.045
 #define NUMTIROSALIADOS 2
 #define NUMTIROSINIMIGOS 10
+#define VELOCIDADETIRO 0.015
 #define BORDAX 0.6
 #define BORDAY 0.8
+#define OFFSET 0.25
 
 typedef struct Point Point;
 typedef struct TNave Nave;
 typedef struct TAlien Alien;
 typedef struct Tiro Tiro;
-typedef struct Efeito Efeito;
 
 void carregarTexturas();
 
@@ -22,7 +23,7 @@ void carregarTexturas();
 Nave* nave_create(float _x, float _y, int numVidas);
 int quantas_vidas(Nave *_nave);
 void desenhaNave(Nave *_nave);
-void mover_nave(Nave *_nave, int direcao_movimento, float vel_movimento, float limite);
+void mover_nave(Nave *_nave, bool setaDireita, bool setaEsquerda, float vel_movimento);
 void dano_nave(Nave *_nave);
 void nave_atira(Nave *_nave, Tiro *_tiro);
 
@@ -34,7 +35,7 @@ void set_pos_nave(Nave *_nave, float posX, float posY);
 Alien* alien_create(float _x, float _y, int alienTipo);
 bool alien_vivo(Alien *_alien);
 void desenhaAlien(Alien *_alien);
-void mover_alien(Alien *_alien, int direcao, float velocidade, float borda);
+void mover_alien(Alien *_alien, int direcao, float velocidade);
 float get_pos_alienX(Alien *_alien);
 void set_pos_alienX(Alien *_alien, float _x);
 void descer_alien(Alien *_alien);
