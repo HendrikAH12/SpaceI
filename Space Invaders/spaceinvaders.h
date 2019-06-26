@@ -1,8 +1,8 @@
 #define ALIENX 5
 #define ALIENY 7
 #define ALIENTIMERDEFAULT 80
-#define ALIENMORTE 15
-#define COOLDOWN 80
+#define ALIENMORTE 20
+#define COOLDOWN 60
 #define TAMANHO 0.045
 #define NUMTIROSALIADOS 2
 #define NUMTIROSINIMIGOS 10
@@ -21,6 +21,7 @@ void carregarTexturas();
 //============ Nave =======================================================================
 
 Nave* nave_create(float _x, float _y, int numVidas);
+void nave_destroy(Nave *_nave);
 int quantas_vidas(Nave *_nave);
 void desenhaNave(Nave *_nave);
 void mover_nave(Nave *_nave, bool setaDireita, bool setaEsquerda, float vel_movimento);
@@ -33,16 +34,19 @@ void set_pos_nave(Nave *_nave, float posX, float posY);
 //============ Alien =======================================================================
 
 Alien* alien_create(float _x, float _y, int alienTipo);
+void alien_destroy(Alien *_alien);
 bool alien_vivo(Alien *_alien);
+void ressucitar_alien(Alien *_alien);
 void desenhaAlien(Alien *_alien);
 void mover_alien(Alien *_alien, int direcao, float velocidade);
 float get_pos_alienX(Alien *_alien);
-void set_pos_alienX(Alien *_alien, float _x);
+void set_pos_alien(Alien *_alien, float _x, float _y);
 void descer_alien(Alien *_alien);
 
 //============ Tiro =======================================================================
 
 Tiro* instanciar_tiro(float posX, float posY, bool _aliado);
+void tiro_destroy(Tiro *tiro);
 bool tiro_ativo(Tiro *_tiro);
 void desenhaTiro(Tiro *_tiro);
 void mover_tiro(Tiro *_tiro);

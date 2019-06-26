@@ -174,6 +174,10 @@ void dano_nave(Nave *_nave) {
     }
 }
 
+void nave_destroy(Nave *_nave) {
+    free(_nave);
+}
+
 void get_pos_nave(Nave *_nave) {
     printf("X: %f  /  Y: %f\n", _nave->pos.x, _nave->pos.y);
 }
@@ -195,6 +199,10 @@ Alien* alien_create(float _x, float _y, int alienTipo) {
         _alien->morteTimer = ALIENMORTE;
     }
     return _alien;
+}
+
+void alien_destroy(Alien *_alien) {
+    free(_alien);
 }
 
 bool alien_vivo(Alien *_alien) {
@@ -227,13 +235,13 @@ void desenhaAlien(Alien *_alien) {
         }
         else if(_alien->morteTimer != 0) {
 
-            if(_alien->morteTimer > 10 && _alien->morteTimer <= 15)
+            if(_alien->morteTimer > 14 && _alien->morteTimer <= 20)
                 desenhaSprite(posX, posY, TAMANHO, morteSprites[0]);
 
-            if(_alien->morteTimer > 5 && _alien->morteTimer <= 10)
+            if(_alien->morteTimer > 7 && _alien->morteTimer <= 14)
                 desenhaSprite(posX, posY, TAMANHO, morteSprites[1]);
 
-            if(_alien->morteTimer > 0 && _alien->morteTimer <= 5)
+            if(_alien->morteTimer > 0 && _alien->morteTimer <= 7)
                 desenhaSprite(posX, posY, TAMANHO, morteSprites[2]);
 
             _alien->morteTimer -= 1;
@@ -268,8 +276,9 @@ float get_pos_alienX(Alien *_alien) {
     return _alien->pos.x;
 }
 
-void set_pos_alienX(Alien *_alien, float _x) {
+void set_pos_alien(Alien *_alien, float _x, float _y) {
     _alien->pos.x = _x;
+    _alien->pos.y = _y;
 }
 
 void descer_alien(Alien *_alien) {
@@ -279,6 +288,10 @@ void descer_alien(Alien *_alien) {
 // Desativa o alien
 void matar_alien(Alien *_alien) {
     _alien->vivo = false;
+}
+
+void ressucitar_alien(Alien *_alien) {
+    _alien->vivo = true;
 }
 
 //===============================================================================
@@ -298,6 +311,10 @@ Tiro* instanciar_tiro(float posX, float posY, bool _aliado) {
         tiro->ativo = false;
     }
     return tiro;
+}
+
+void tiro_destroy(Tiro *tiro) {
+    free(tiro);
 }
 
 bool tiro_ativo(Tiro *_tiro) {

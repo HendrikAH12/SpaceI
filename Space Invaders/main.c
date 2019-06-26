@@ -12,11 +12,13 @@ void EnableOpenGL(HWND hwnd, HDC*, HGLRC*);
 void DisableOpenGL(HWND, HDC, HGLRC);
 
 //========================================================
+bool isGameOver = false;
+bool isGamePaused = false;
 int dirAlien = 1; //Variável para a direção dos aliens
 bool atirar = false, setaD = false, setaE = false; //Variáveis de reconhecimento de tecla
 int alienTimer = ALIENTIMERDEFAULT;
 int score = 0;
-int tiroContadorAlien = 0;
+int cooldownTiroJogador = 0; cooldownTiroAlien = 0;
 float vel_jogador = 0.01, vel_alien = 0.04; //Setup das variáveis de velocidade
 Nave *nave; //Ponteiro da nave
 Alien *aliens[ALIENX][ALIENY]; //Ponteiros dos aliens
@@ -25,6 +27,8 @@ Tiro *tirosAliens[NUMTIROSINIMIGOS];
 //========================================================
 
 void inicializarJogo();
+void resetarJogo();
+void encerrarJogo();
 void desenhaJogo();
 void logicaAliens();
 void logicaTiros();
@@ -102,38 +106,39 @@ int WINAPI WinMain(HINSTANCE hInstance,
         else
         {
             /* OpenGL animation code goes here */
+            if(!isGamePaused) {
+                glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
 
-            glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+                glPushMatrix();
 
-            glPushMatrix();
+                //Desenha o quadrado da área jogável
+                glBegin(GL_QUADS);
 
-            //Desenha o quadrado da área jogável
-            glBegin(GL_QUADS);
+                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(BORDAX - OFFSET + TAMANHO, BORDAY);
+                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(BORDAX - OFFSET + TAMANHO, -BORDAY);
+                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-BORDAX - OFFSET - TAMANHO, -BORDAY);
+                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-BORDAX - OFFSET - TAMANHO, BORDAY);
 
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(BORDAX - OFFSET + TAMANHO, BORDAY);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(BORDAX - OFFSET + TAMANHO, -BORDAY);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-BORDAX - OFFSET - TAMANHO, -BORDAY);
-                glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-BORDAX - OFFSET - TAMANHO, BORDAY);
+                glEnd();
 
-            glEnd();
+                desenhaJogo();
 
-            desenhaJogo();
+                glPopMatrix();
 
-            glPopMatrix();
-
-            SwapBuffers(hDC);
+                SwapBuffers(hDC);
+            }
             Sleep (1);
         }
     }
+
+    encerrarJogo();
 
     /* shutdown OpenGL */
     DisableOpenGL(hwnd, hDC, hRC);
 
     /* destroy the window explicitly */
     DestroyWindow(hwnd);
-
-    free(nave);
 
     return msg.wParam;
 }
@@ -164,6 +169,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 case VK_SPACE:
                     atirar = true;
                     break;
+
+                case 'P':
+                    isGamePaused = !isGamePaused;
+                    break;
+
+                case 'R':
+                {
+                    if(isGamePaused)
+                        resetarJogo();
+                }
+                break;
 
                 case VK_ESCAPE:
                     PostQuitMessage(0);
@@ -272,7 +288,11 @@ void desenhaJogo() {
     //Desenha e processa o movimento dos aliens
     logicaAliens();
 
-    //Processa, desenha e movimenta o tiro dos aliens e dos aliados
+    //Desenha o tiro do jogador
+    if(tiro_ativo(tiroJogador))
+        desenhaTiro(tiroJogador);
+
+    //Processa e movimenta o tiro dos aliens e dos aliados
     logicaTiros();
 
     //Atualiza o timer
@@ -294,7 +314,7 @@ void logicaAliens() {
         for(j = 0; j < ALIENY; j++) {
 
             desenhaAlien(aliens[i][j]); //Funcao principal de desenho.
-            
+
             if(alien_vivo(aliens[i][j])) {
 
                 // Se este if nao estiver aqui, os aliens descem antes que todos cheguem na borda.
@@ -356,22 +376,20 @@ void logicaAliens() {
             }
         }
     }
-
-    alienTimer -= 1;
 }
 
 void logicaTiros() {
 
     if(atirar) {
-        if(!tiro_ativo(tiroJogador)) {
+        if(!tiro_ativo(tiroJogador) && cooldownTiroJogador == 0) {
             nave_atira(nave, tiroJogador);
+            cooldownTiroJogador = COOLDOWN;
         }
     }
 
     int i, j;
     if(tiro_ativo(tiroJogador)) {
         mover_tiro(tiroJogador);
-        desenhaTiro(tiroJogador);
         for (i = 0; i < ALIENX; i++) {
             for (j = 0; j < ALIENY; j++) {
                 detectar_colisao_alien(aliens[i][j], tiroJogador, &score);
@@ -382,7 +400,62 @@ void logicaTiros() {
 
 // Timers
 void updateTimer() {
+
+    alienTimer -= 1;
     if(alienTimer < 0)
-        alienTimer = ALIENTIMERDEFAULT;
-    //printf("%d\n", alienTimer);
+        alienTimer = ALIENTIMERDEFAULT; //Reseta o timer
+
+    if(cooldownTiroJogador > 0) {
+        cooldownTiroJogador -= 1;
+    }
+    printf("%d\n", cooldownTiroJogador);
+}
+
+// Reseta as variáveis globais, reorganiza os aliens e o jogador e os tiros
+void resetarJogo() {
+
+    score = 0;
+    alienTimer = ALIENTIMERDEFAULT;
+    dirAlien = 1;
+    cooldownTiroJogador = cooldownTiroAlien = 0;
+
+    set_pos_nave(nave, -0.5, -0.7);
+
+    if(tiro_ativo(tiroJogador)) {
+        guardar_tiro(tiroJogador);
+    }
+
+    int i, j;
+    float posX = -0.4 - OFFSET, posY = 0.5; // Posições iniciais
+    for(i = 0; i < ALIENX; i++) {
+
+        for(j = 0; j < ALIENY; j++) {
+            set_pos_alien(aliens[i][j], posX, posY);
+            if(!alien_vivo(aliens[i][j]))
+                ressucitar_alien(aliens[i][j]);
+            posX += 0.15; // Espaçamento em X
+        }
+        posY -= 0.1; // Espaçamento em Y
+        posX = -0.4 - OFFSET; // Volta para a primeira coluna
+    }
+
+    isGamePaused = false;
+}
+
+// Desaloca a memória utilizada para garantir uma finalização boa
+void encerrarJogo() {
+    nave_destroy(nave);
+
+    int i, j;
+    for(i = 0; i < ALIENX; i++) {
+        for(j = 0; j < ALIENY; j++) {
+            alien_destroy(aliens[i][j]);
+        }
+    }
+
+    tiro_destroy(tiroJogador);
+
+    for(i = 0; i < NUMTIROSINIMIGOS; i++) {
+        tiro_destroy(tirosAliens[i]);
+    }
 }
