@@ -10,7 +10,7 @@ Membros: Mateus Carmo, Hendrik Abdallah, Gabriel Joshua
 
 To-do:
 - Implementar tiro inimigo / morte do jogador
-- Implementar animação de morte / aceleração dos oponentes (dificuldade)
+- Implementar aceleração dos oponentes (dificuldade)
 - Implementar menus
 - Implementar telas de morte / menu principal
 - Implementar texto de highscore / vidas
@@ -18,5 +18,4 @@ To-do:
 Opcionais:
 - Interface mais interativa (botão clicável)
 - Alien de pontos extras (a vermelhinha)
-- Fácil reset do jogo
 - Audio?

@@ -18,7 +18,7 @@ int dirAlien = 1; //Variável para a direção dos aliens
 bool atirar = false, setaD = false, setaE = false; //Variáveis de reconhecimento de tecla
 int alienTimer = ALIENTIMERDEFAULT;
 int score = 0;
-int cooldownTiroJogador = 0; cooldownTiroAlien = 0;
+int cooldownTiroJogador = 0, cooldownTiroAlien = 0, timerFinal = 60;
 float vel_jogador = 0.01, vel_alien = 0.04; //Setup das variáveis de velocidade
 Nave *nave; //Ponteiro da nave
 Alien *aliens[ALIENX][ALIENY]; //Ponteiros dos aliens
@@ -107,6 +107,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
         {
             /* OpenGL animation code goes here */
             if(!isGamePaused) {
+
                 glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
 
@@ -127,6 +128,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
                 glPopMatrix();
 
                 SwapBuffers(hDC);
+                
             }
             Sleep (1);
         }
@@ -171,12 +173,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     break;
 
                 case 'P':
-                    isGamePaused = !isGamePaused;
+                    if(!isGameOver) {
+                        isGamePaused = !isGamePaused;
+                    }
                     break;
 
                 case 'R':
                 {
-                    if(isGamePaused)
+                    if(isGamePaused || isGameOver)
                         resetarJogo();
                 }
                 break;
@@ -262,7 +266,7 @@ void inicializarJogo() {
     tiroJogador = instanciar_tiro(0, 0, true);
 
     int i, j, tipo = 1;
-    float posX = -0.4 - OFFSET, posY = 0.5; // Posições iniciais
+    float posX = -0.4 - OFFSET, posY = 0; // Posições iniciais
     for(i = 0; i < ALIENX; i++) {
 
         if(i != 0 && i % 2 != 0) // Variar o tipo de alien de acordo com a linha
@@ -279,24 +283,37 @@ void inicializarJogo() {
 
 void desenhaJogo() {
 
-    //Funcao principal de movimento do personagem jogavel
-    mover_nave(nave, setaD, setaE, vel_jogador);
-
     //Desenha o personagem jogável
     desenhaNave(nave);
 
-    //Desenha e processa o movimento dos aliens
-    logicaAliens();
+    int i, j;
+    for(i = 0; i < ALIENX; i++) {
+        for(j = 0; j < ALIENY; j++) {
+            desenhaAlien(aliens[i][j]); //Funcao principal de desenho dos aliens
+        }
+    }
 
-    //Desenha o tiro do jogador
-    if(tiro_ativo(tiroJogador))
-        desenhaTiro(tiroJogador);
+    if(!isGameOver) {
+        //Funcao principal de movimento do personagem jogavel
+        mover_nave(nave, setaD, setaE, vel_jogador);
 
-    //Processa e movimenta o tiro dos aliens e dos aliados
-    logicaTiros();
+        //Desenha e processa o movimento dos aliens
+        logicaAliens();
 
-    //Atualiza o timer
-    updateTimer();
+        //Desenha o tiro do jogador
+        if(tiro_ativo(tiroJogador))
+            desenhaTiro(tiroJogador);
+
+        //Processa e movimenta o tiro dos aliens e dos aliados
+        logicaTiros();
+
+        //Atualiza o timer
+        updateTimer();
+    }
+    else
+    {
+
+    }
 }
 
 /*
@@ -313,9 +330,12 @@ void logicaAliens() {
     for(i = 0; i < ALIENX; i++) {
         for(j = 0; j < ALIENY; j++) {
 
-            desenhaAlien(aliens[i][j]); //Funcao principal de desenho.
-
             if(alien_vivo(aliens[i][j])) {
+
+                if(get_pos_alienY(aliens[i][j]) - 2*TAMANHO <= -0.7) {
+                    nave_set_estado(nave, false);
+                    isGameOver = true;
+                }
 
                 // Se este if nao estiver aqui, os aliens descem antes que todos cheguem na borda.
                 // Além disso, sincroniza para eles descerem na hora que o timer resetar.
@@ -352,7 +372,7 @@ void logicaAliens() {
             if(alien_vivo(aliens[i][j])) {
 
                 // Se precisar descer, descer os aliens e resetar o timer (evita desincronismo)
-                if(precisaDescer) {
+                if(precisaDescer && !isGameOver) {
                     descer_alien(aliens[i][j]);
                     alienTimer = ALIENTIMERDEFAULT;
                 }
@@ -411,6 +431,31 @@ void updateTimer() {
     printf("%d\n", cooldownTiroJogador);
 }
 
+void desenharInterfaceGrafica() {
+
+    if(isGameOver && get_nave_morteTimer(nave) == 0) {
+        float posX = -OFFSET, posY = 0;
+
+        glBegin(GL_QUADS);
+
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.1, posY + 0.1);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.1, posY - 0.1);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.1, posY - 0.1);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.1, posY + 0.1);
+
+        glEnd();
+        glBegin(GL_QUADS);
+
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.1) + 0.1, posY + 0.1);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.1) + 0.1, posY - 0.1);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.1) - 0.1, posY - 0.1);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.1) - 0.1, posY + 0.1);
+
+        glEnd();
+    }
+
+}
+
 // Reseta as variáveis globais, reorganiza os aliens e o jogador e os tiros
 void resetarJogo() {
 
@@ -419,10 +464,11 @@ void resetarJogo() {
     dirAlien = 1;
     cooldownTiroJogador = cooldownTiroAlien = 0;
 
-    set_pos_nave(nave, -0.5, -0.7);
+    nave_set_estado(nave, true); //Revive o jogador
+    set_pos_nave(nave, -0.5, -0.7); //Reposiciona o jogador
 
     if(tiro_ativo(tiroJogador)) {
-        guardar_tiro(tiroJogador);
+        guardar_tiro(tiroJogador); //Guarda os tiros (caso haja algum na tela)
     }
 
     int i, j;
@@ -432,14 +478,18 @@ void resetarJogo() {
         for(j = 0; j < ALIENY; j++) {
             set_pos_alien(aliens[i][j], posX, posY);
             if(!alien_vivo(aliens[i][j]))
-                ressucitar_alien(aliens[i][j]);
+                alien_set_estado(aliens[i][j], true);
             posX += 0.15; // Espaçamento em X
         }
         posY -= 0.1; // Espaçamento em Y
         posX = -0.4 - OFFSET; // Volta para a primeira coluna
     }
 
-    isGamePaused = false;
+    if(isGamePaused)
+        isGamePaused = false; //Despausa (caso esteja pausado)
+
+    if(isGameOver)
+        isGameOver = false; //Reinicia o jogo (caso o jogador tivesse morrido)
 }
 
 // Desaloca a memória utilizada para garantir uma finalização boa

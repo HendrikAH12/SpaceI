@@ -13,7 +13,7 @@ struct Point {
 
 struct TNave {
     bool vivo;
-    int vidas;
+    int vidas, morteTimer;
     struct Point pos;
 };
 
@@ -92,6 +92,31 @@ void desenhaSprite(float x, float y, float tamanho, GLuint tex){
 
 }
 
+void desenhaSpriteJogador(float x, float y, float tamanho, GLuint tex){
+
+    glPushMatrix();
+
+    glColor3f(0.0, 1.0, 0.0);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, tex);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glBegin(GL_QUADS);
+        glTexCoord2f(0.0f,1.0f); glVertex2f(x - tamanho, y + tamanho);
+        glTexCoord2f(1.0f,1.0f); glVertex2f(x + tamanho, y + tamanho);
+        glTexCoord2f(1.0f,0.0f); glVertex2f(x + tamanho, y - tamanho);
+        glTexCoord2f(0.0f,0.0f); glVertex2f(x - tamanho, y - tamanho);
+    glEnd();
+
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
+
+    glPopMatrix();
+
+}
+
 //===============================================================================
 
 // Aloca espaço da memória para uma nave, e associa os valores dados à ela.
@@ -102,6 +127,7 @@ Nave* nave_create(float _x, float _y, int numVidas) {
         _nave->pos.x = _x;
         _nave->pos.y = _y;
         _nave->vidas = numVidas;
+        _nave->morteTimer = 60;
     }
     return _nave;
 }
@@ -140,23 +166,39 @@ void mover_nave(Nave *_nave, bool setaDireita, bool setaEsquerda, float vel_movi
 
 void desenhaNave(Nave *_nave) {
 
-    if(_nave != NULL && _nave->vivo) {
+    if(_nave != NULL) {
 
         float posX = _nave->pos.x;
         float posY = _nave->pos.y;
 
-        /*
-                    ---------------
-                    |             |       X é o centro (marcado pelo Point pos da nave.
-                    |             |       A caixa do sprite tem um lado = 2 * tamanho.
-                  - |      X      |
-              tam | |             |
-                  | |             |
-                  - ---------------
-                            |-----|
-                               tam
-        */
-        desenhaSprite(posX, posY, TAMANHO, charSprites[0]);
+        if(_nave->vivo) {
+
+            /*
+                        ---------------
+                        |             |       X é o centro (marcado pelo Point pos da nave.
+                        |             |       A caixa do sprite tem um lado = 2 * tamanho.
+                      - |      X      |
+                  tam | |             |
+                      | |             |
+                      - ---------------
+                                |-----|
+                                   tam
+            */
+            desenhaSpriteJogador(posX, posY, TAMANHO, charSprites[0]);
+        }
+        else if(_nave->morteTimer != 0) {
+
+            if(_nave->morteTimer > 40 && _nave->morteTimer <= 60)
+                desenhaSpriteJogador(posX, posY, TAMANHO, morteSprites[0]);
+
+            if(_nave->morteTimer > 20 && _nave->morteTimer <= 40)
+                desenhaSpriteJogador(posX, posY, TAMANHO, morteSprites[1]);
+
+            if(_nave->morteTimer > 0 && _nave->morteTimer <= 20)
+                desenhaSpriteJogador(posX, posY, TAMANHO, morteSprites[2]);
+
+            _nave->morteTimer -= 1;
+        }
     }
 }
 
@@ -172,6 +214,10 @@ void dano_nave(Nave *_nave) {
     if(_nave->vidas == 0) {
         _nave->vivo = false;
     }
+}
+
+void nave_set_estado(Nave *_nave, bool estado) {
+    _nave->vivo = estado;
 }
 
 void nave_destroy(Nave *_nave) {
@@ -196,7 +242,7 @@ Alien* alien_create(float _x, float _y, int alienTipo) {
         _alien->pos.x = _x;
         _alien->pos.y = _y;
         _alien->tipo = alienTipo;
-        _alien->morteTimer = ALIENMORTE;
+        _alien->morteTimer = 20;
     }
     return _alien;
 }
@@ -207,6 +253,10 @@ void alien_destroy(Alien *_alien) {
 
 bool alien_vivo(Alien *_alien) {
     return _alien->vivo;
+}
+
+int get_nave_morteTimer(Alien *_alien) {
+    return _alien->morteTimer;
 }
 
 void desenhaAlien(Alien *_alien) {
@@ -276,6 +326,9 @@ float get_pos_alienX(Alien *_alien) {
     return _alien->pos.x;
 }
 
+float get_pos_alienY(Alien *_alien) {
+    return _alien->pos.y;
+}
 void set_pos_alien(Alien *_alien, float _x, float _y) {
     _alien->pos.x = _x;
     _alien->pos.y = _y;
@@ -285,13 +338,11 @@ void descer_alien(Alien *_alien) {
     _alien->pos.y -= 0.1f;
 }
 
-// Desativa o alien
-void matar_alien(Alien *_alien) {
-    _alien->vivo = false;
-}
-
-void ressucitar_alien(Alien *_alien) {
-    _alien->vivo = true;
+void alien_set_estado(Alien *_alien, bool estado) {
+    if(_alien->vivo == false && estado == true) {
+        _alien->morteTimer = 20;
+    }
+    _alien->vivo = estado;
 }
 
 //===============================================================================
@@ -327,14 +378,26 @@ void desenhaTiro(Tiro *_tiro) {
         float posX = _tiro->pos.x;
         float posY = _tiro->pos.y;
 
-        glBegin(GL_QUADS);
+        if(_tiro->aliado) {
+            glBegin(GL_QUADS);
 
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.005, posY + 0.03);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.005, posY - 0.03);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.005, posY - 0.03);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.005, posY + 0.03);
+                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX + 0.005, posY + 0.03);
+                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX + 0.005, posY - 0.03);
+                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX - 0.005, posY - 0.03);
+                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX - 0.005, posY + 0.03);
 
-        glEnd();
+            glEnd();
+        }
+        else {
+            glBegin(GL_QUADS);
+
+                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.005, posY + 0.03);
+                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.005, posY - 0.03);
+                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.005, posY - 0.03);
+                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.005, posY + 0.03);
+
+            glEnd();
+        }
     }
 }
 
@@ -374,12 +437,12 @@ void detectar_colisao_alien(Alien *_alien, Tiro *_tiro, int *score) {
 
     if(_tiro->pos.x >= limiteAlienEsquerda && _tiro->pos.x <= limiteAlienDireita) {
         if(_tiro->pos.y + 0.03 <= limiteAlienCima && _tiro->pos.y + 0.03 >= limiteAlienBaixo && _alien->vivo) {
-            matar_alien(_alien);
+            alien_set_estado(_alien, false);
             *score += _alien->tipo * 10;
             guardar_tiro(_tiro);
         }
         if(_tiro->pos.y - 0.03 <= limiteAlienCima && _tiro->pos.y - 0.03 >= limiteAlienBaixo && _alien->vivo) {
-            matar_alien(_alien);
+            alien_set_estado(_alien, false);
             *score += _alien->tipo * 10;
             guardar_tiro(_tiro);
         }
