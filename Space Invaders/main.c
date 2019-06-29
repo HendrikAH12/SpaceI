@@ -16,7 +16,7 @@ bool isGameOver = false;
 bool isGamePaused = false;
 int dirAlien = 1; //Variável para a direção dos aliens
 bool atirar = false, setaD = false, setaE = false; //Variáveis de reconhecimento de tecla
-int alienTimer = ALIENTIMERDEFAULT;
+int alienTimer = ALIENTIMERDEFAULT, timerCount = 1;
 int score = 0;
 int cooldownTiroJogador = 0, cooldownTiroAlien = 0, timerFinal = 60;
 float vel_jogador = 0.01, vel_alien = 0.04; //Setup das variáveis de velocidade
@@ -30,6 +30,7 @@ void inicializarJogo();
 void resetarJogo();
 void encerrarJogo();
 void desenhaJogo();
+void desenharInterfaceGrafica();
 void logicaAliens();
 void logicaTiros();
 void updateTimer();
@@ -108,27 +109,30 @@ int WINAPI WinMain(HINSTANCE hInstance,
             /* OpenGL animation code goes here */
             if(!isGamePaused) {
 
-                glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
 
                 glPushMatrix();
 
+                desenhaFundo();
+
                 //Desenha o quadrado da área jogável
                 glBegin(GL_QUADS);
 
-                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(BORDAX - OFFSET + TAMANHO, BORDAY);
-                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(BORDAX - OFFSET + TAMANHO, -BORDAY);
-                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-BORDAX - OFFSET - TAMANHO, -BORDAY);
-                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(-BORDAX - OFFSET - TAMANHO, BORDAY);
+                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(0.4, 0.9);
+                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(0.4, -0.9);
+                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(1, -0.9);
+                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(1, 0.9);
 
                 glEnd();
 
                 desenhaJogo();
+                desenharInterfaceGrafica();
 
                 glPopMatrix();
 
                 SwapBuffers(hDC);
-                
+
             }
             Sleep (1);
         }
@@ -274,7 +278,7 @@ void inicializarJogo() {
 
         for(j = 0; j < ALIENY; j++) {
             aliens[i][j] = alien_create(posX, posY, 4-tipo); // 4 - tipo para garantir os aliens corretos
-            posX += 0.15; // Espaçamento em X
+            posX += 0.16; // Espaçamento em X
         }
         posY -= 0.1; // Espaçamento em Y
         posX = -0.4 - OFFSET; // Volta para a primeira coluna
@@ -310,10 +314,6 @@ void desenhaJogo() {
         //Atualiza o timer
         updateTimer();
     }
-    else
-    {
-
-    }
 }
 
 /*
@@ -323,7 +323,7 @@ void desenhaJogo() {
     - Fazer tudo isso analisando o timer dos aliens (alienTimer) e os offsets
 */
 void logicaAliens() {
-    int i, j;
+    int i, j, aliensMortos = 0;
     int precisaDescer = false;
 
     // Cheque de posicoes
@@ -357,6 +357,8 @@ void logicaAliens() {
                         break;
                     }
                 }
+            } else {
+                aliensMortos++;
             }
         }
         // Sair do cheque
@@ -381,20 +383,31 @@ void logicaAliens() {
 
                     //Se nao precisar descer, mover normalmente (já que a direção já foi invertida)
                     //Mover em determinado momento do timer de acordo com a linha
-                    if(i == 0 && alienTimer == 20)
+                    if(i == 0 && alienTimer == 60)
                         mover_alien(aliens[i][j], dirAlien, vel_alien);
-                    if(i == 1 && alienTimer == 30)
+                    if(i == 1 && alienTimer == 50)
                         mover_alien(aliens[i][j], dirAlien, vel_alien);
                     if(i == 2 && alienTimer == 40)
                         mover_alien(aliens[i][j], dirAlien, vel_alien);
-                    if(i == 3 && alienTimer == 50)
+                    if(i == 3 && alienTimer == 30)
                         mover_alien(aliens[i][j], dirAlien, vel_alien);
-                    if(i == 4 && alienTimer == 60)
+                    if(i == 4 && alienTimer == 20)
                         mover_alien(aliens[i][j], dirAlien, vel_alien);
+
 
                 }
             }
         }
+    }
+
+    if(aliensMortos == 17 && timerCount != 2) {
+        timerCount = 2;
+    }
+    if(aliensMortos == 30 && timerCount != 5) {
+        timerCount = 5;
+    }
+    if(aliensMortos == 34 && timerCount != 10) {
+        timerCount = 10;
     }
 }
 
@@ -421,14 +434,14 @@ void logicaTiros() {
 // Timers
 void updateTimer() {
 
-    alienTimer -= 1;
+    alienTimer -= timerCount;
     if(alienTimer < 0)
         alienTimer = ALIENTIMERDEFAULT; //Reseta o timer
 
     if(cooldownTiroJogador > 0) {
         cooldownTiroJogador -= 1;
     }
-    printf("%d\n", cooldownTiroJogador);
+    printf("%d\n", alienTimer);
 }
 
 void desenharInterfaceGrafica() {
@@ -438,21 +451,23 @@ void desenharInterfaceGrafica() {
 
         glBegin(GL_QUADS);
 
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.1, posY + 0.1);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.1, posY - 0.1);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.1, posY - 0.1);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.1, posY + 0.1);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX - 0.11) + 0.1, posY + 0.1);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX - 0.11) + 0.1, posY - 0.1);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX - 0.11) - 0.1, posY - 0.1);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX - 0.11) - 0.1, posY + 0.1);
 
         glEnd();
         glBegin(GL_QUADS);
 
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.1) + 0.1, posY + 0.1);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.1) + 0.1, posY - 0.1);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.1) - 0.1, posY - 0.1);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.1) - 0.1, posY + 0.1);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.11) + 0.1, posY + 0.1);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.11) + 0.1, posY - 0.1);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.11) - 0.1, posY - 0.1);
+            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.11) - 0.1, posY + 0.1);
 
         glEnd();
     }
+
+    desenhaScore(score, 4);
 
 }
 
@@ -461,6 +476,7 @@ void resetarJogo() {
 
     score = 0;
     alienTimer = ALIENTIMERDEFAULT;
+    timerCount = 1;
     dirAlien = 1;
     cooldownTiroJogador = cooldownTiroAlien = 0;
 
@@ -479,7 +495,7 @@ void resetarJogo() {
             set_pos_alien(aliens[i][j], posX, posY);
             if(!alien_vivo(aliens[i][j]))
                 alien_set_estado(aliens[i][j], true);
-            posX += 0.15; // Espaçamento em X
+            posX += 0.16; // Espaçamento em X
         }
         posY -= 0.1; // Espaçamento em Y
         posX = -0.4 - OFFSET; // Volta para a primeira coluna

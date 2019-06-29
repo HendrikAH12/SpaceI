@@ -30,14 +30,19 @@ struct Tiro {
 
 GLuint charSprites[4];
 GLuint morteSprites[3];
+GLuint spritesUI[4];
+GLuint spritesNums[10];
 
+static void desenhaSprite(float x, float y, float tamanho, GLuint tex);
+static void desenhaSpriteJogador(float x, float y, float tamanho, GLuint tex);
 static GLuint carregaArqTextura(char *str);
 
 void carregarTexturas() {
-    char str[30] = ".//Sprites//nave.png";
+    char str[50] = ".//Sprites//nave.png";
     charSprites[0] = carregaArqTextura(str);
 
     int i;
+
     for(i = 1; i <= 3; i++) {
         sprintf(str, ".//Sprites//inimigo%d.png", i);
         charSprites[i] = carregaArqTextura(str);
@@ -46,6 +51,14 @@ void carregarTexturas() {
     for(i = 0; i < 3; i++) {
         sprintf(str, ".//Sprites//morte%d.png", i+1);
         morteSprites[i] = carregaArqTextura(str);
+    }
+
+    spritesUI[0] = carregaArqTextura(".//Sprites//fundo.png");
+    spritesUI[1] = carregaArqTextura(".//Sprites//Score//score.png");
+
+    for(i = 0; i < 10; i++) {
+        sprintf(str, ".//Sprites//Score//sprite%d.png", i);
+        spritesNums[i] = carregaArqTextura(str);
     }
 }
 
@@ -401,6 +414,13 @@ void desenhaTiro(Tiro *_tiro) {
     }
 }
 
+// Armazena o tiro fora da tela para uso posterior (evita a necessidade de criar novos tiros)
+void guardar_tiro(Tiro *_tiro) {
+    _tiro->pos.x = 1;
+    _tiro->pos.y = 1;
+    _tiro->ativo = false;
+}
+
 void mover_tiro(Tiro *_tiro) {
 
     if(_tiro->aliado) {
@@ -413,13 +433,6 @@ void mover_tiro(Tiro *_tiro) {
         guardar_tiro(_tiro);
     }
 
-}
-
-// Armazena o tiro fora da tela para uso posterior (evita a necessidade de criar novos tiros)
-void guardar_tiro(Tiro *_tiro) {
-    _tiro->pos.x = 1;
-    _tiro->pos.y = 1;
-    _tiro->ativo = false;
 }
 
 /*
@@ -436,16 +449,70 @@ void detectar_colisao_alien(Alien *_alien, Tiro *_tiro, int *score) {
     float limiteAlienDireita = _alien->pos.x + TAMANHO;
 
     if(_tiro->pos.x >= limiteAlienEsquerda && _tiro->pos.x <= limiteAlienDireita) {
+
         if(_tiro->pos.y + 0.03 <= limiteAlienCima && _tiro->pos.y + 0.03 >= limiteAlienBaixo && _alien->vivo) {
             alien_set_estado(_alien, false);
             *score += _alien->tipo * 10;
             guardar_tiro(_tiro);
         }
+
         if(_tiro->pos.y - 0.03 <= limiteAlienCima && _tiro->pos.y - 0.03 >= limiteAlienBaixo && _alien->vivo) {
             alien_set_estado(_alien, false);
             *score += _alien->tipo * 10;
             guardar_tiro(_tiro);
         }
-    }
 
+    }
+}
+
+//===============================================================================
+
+void desenhaFundo() {
+    desenhaSprite(0, 0, 0.9, spritesUI[0]);
+}
+
+void desenhaScore(int score, int numDigitos) {
+    float posX = 0.55, posY = 0;
+    desenhaSprite(posX, posY, 0.1, spritesUI[1]);
+
+    char scoreStr[15];
+    sprintf(scoreStr, "%d", score);
+
+    int i;
+    float offsetDigito = 0.15, tamanhoNums = 0.03;
+    for(i = 0; i < numDigitos; i++) {
+        switch (scoreStr[i]) {
+            case '0':
+                desenhaSprite(posX + offsetDigito, posY, tamanhoNums, spritesNums[0]);
+                break;
+            case '1':
+                desenhaSprite(posX + offsetDigito, posY, tamanhoNums, spritesNums[1]);
+                break;
+            case '2':
+                desenhaSprite(posX + offsetDigito, posY, tamanhoNums, spritesNums[2]);
+                break;
+            case '3':
+                desenhaSprite(posX + offsetDigito, posY, tamanhoNums, spritesNums[3]);
+                break;
+            case '4':
+                desenhaSprite(posX + offsetDigito, posY, tamanhoNums, spritesNums[4]);
+                break;
+            case '5':
+                desenhaSprite(posX + offsetDigito, posY, tamanhoNums, spritesNums[5]);
+                break;
+            case '6':
+                desenhaSprite(posX + offsetDigito, posY, tamanhoNums, spritesNums[6]);
+                break;
+            case '7':
+                desenhaSprite(posX + offsetDigito, posY, tamanhoNums, spritesNums[7]);
+                break;
+            case '8':
+                desenhaSprite(posX + offsetDigito, posY, tamanhoNums, spritesNums[8]);
+                break;
+            case '9':
+                desenhaSprite(posX + offsetDigito, posY, tamanhoNums, spritesNums[9]);
+                break;
+        }
+        offsetDigito += 0.055;
+    }
 }

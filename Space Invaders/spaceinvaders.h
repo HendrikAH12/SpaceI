@@ -8,7 +8,7 @@
 #define VELOCIDADETIRO 0.015
 #define BORDAX 0.6
 #define BORDAY 0.8
-#define OFFSET 0.25
+#define OFFSET 0.28
 
 typedef struct Point Point;
 typedef struct TNave Nave;
@@ -53,3 +53,8 @@ bool tiro_ativo(Tiro *_tiro);
 void desenhaTiro(Tiro *_tiro);
 void mover_tiro(Tiro *_tiro);
 void detectar_colisao_alien(Alien *_alien, Tiro *_tiro, int *score);
+
+//============ IU =======================================================================
+
+void desenhaScore(int score, int numDigitos);
+void desenhaFundo();
