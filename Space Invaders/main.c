@@ -270,7 +270,7 @@ void inicializarJogo() {
     tiroJogador = instanciar_tiro(0, 0, true);
 
     int i, j, tipo = 1;
-    float posX = -0.4 - OFFSET, posY = 0; // Posições iniciais
+    float posX = -0.5 - OFFSET, posY = 0.6; // Posições iniciais
     for(i = 0; i < ALIENX; i++) {
 
         if(i != 0 && i % 2 != 0) // Variar o tipo de alien de acordo com a linha
@@ -281,7 +281,7 @@ void inicializarJogo() {
             posX += 0.16; // Espaçamento em X
         }
         posY -= 0.1; // Espaçamento em Y
-        posX = -0.4 - OFFSET; // Volta para a primeira coluna
+        posX = -0.5 - OFFSET; // Volta para a primeira coluna
     }
 }
 
@@ -381,7 +381,7 @@ void logicaAliens() {
                 else
                 {
 
-                    //Se nao precisar descer, mover normalmente (já que a direção já foi invertida)
+                    //Se não precisar descer, mover normalmente (já que a direção já foi invertida)
                     //Mover em determinado momento do timer de acordo com a linha
                     if(i == 0 && alienTimer == 60)
                         mover_alien(aliens[i][j], dirAlien, vel_alien);
@@ -400,10 +400,10 @@ void logicaAliens() {
         }
     }
 
-    if(aliensMortos == 17 && timerCount != 2) {
+    if(aliensMortos == 14 && timerCount != 2) {
         timerCount = 2;
     }
-    if(aliensMortos == 30 && timerCount != 5) {
+    if(aliensMortos == 26 && timerCount != 5) {
         timerCount = 5;
     }
     if(aliensMortos == 34 && timerCount != 10) {
