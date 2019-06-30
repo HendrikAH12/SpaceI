@@ -8,14 +8,5 @@ Pacman -> Space Invaders
 
 Membros: Mateus Carmo, Hendrik Abdallah, Gabriel Joshua
 
-To-do:
-- Implementar tiro inimigo / morte do jogador
-- Implementar aceleração dos oponentes (dificuldade)
-- Implementar menus
-- Implementar telas de morte / menu principal
-- Implementar texto de highscore / vidas
-
 Opcionais:
-- Interface mais interativa (botão clicável)
-- Alien de pontos extras (a vermelhinha)
 - Audio?

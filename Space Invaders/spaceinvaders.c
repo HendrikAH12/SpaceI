@@ -13,7 +13,7 @@ struct Point {
 
 struct TNave {
     bool vivo;
-    int vidas, morteTimer;
+    int morteTimer;
     struct Point pos;
 };
 
@@ -28,7 +28,7 @@ struct Tiro {
     struct Point pos;
 };
 
-GLuint charSprites[4];
+GLuint charSprites[5];
 GLuint morteSprites[3];
 GLuint spritesUI[5];
 GLuint spritesNums[10];
@@ -43,7 +43,7 @@ void carregarTexturas() {
 
     int i;
 
-    for(i = 1; i <= 3; i++) {
+    for(i = 1; i <= 4; i++) {
         sprintf(str, ".//Sprites//inimigo%d.png", i);
         charSprites[i] = carregaArqTextura(str);
     }
@@ -133,23 +133,20 @@ void desenhaSpriteJogador(float x, float y, float tamanho, GLuint tex){
 
 }
 
-//===============================================================================
+//========================================================================================================
+//======== Nave ==========================================================================================
+//========================================================================================================
 
 // Aloca espaço da memória para uma nave, e associa os valores dados à ela.
-Nave* nave_create(float _x, float _y, int numVidas) {
+Nave* nave_create(float _x, float _y) {
     Nave* _nave = malloc(sizeof(Nave));
     if(_nave != NULL) {
         _nave->vivo = true;
         _nave->pos.x = _x;
         _nave->pos.y = _y;
-        _nave->vidas = numVidas;
         _nave->morteTimer = 60;
     }
     return _nave;
-}
-
-int quantas_vidas(Nave *_nave) {
-    return _nave->vidas;
 }
 
 void mover_nave(Nave *_nave, bool setaDireita, bool setaEsquerda, float vel_movimento) {
@@ -224,14 +221,6 @@ void nave_atira(Nave *_nave, Tiro *_tiro) {
     _tiro->ativo = true;
 }
 
-void dano_nave(Nave *_nave) {
-    _nave->vidas -= 1;
-
-    if(_nave->vidas == 0) {
-        _nave->vivo = false;
-    }
-}
-
 void nave_set_estado(Nave *_nave, bool estado) {
     _nave->vivo = estado;
 }
@@ -249,7 +238,9 @@ void set_pos_nave(Nave *_nave, float posX, float posY) {
     _nave->pos.y = posY;
 }
 
-//===============================================================================
+//========================================================================================================
+//========= Alien ========================================================================================
+//========================================================================================================
 
 Alien* alien_create(float _x, float _y, int alienTipo) {
     Alien* _alien = malloc(sizeof(Alien));
@@ -271,8 +262,8 @@ bool alien_vivo(Alien *_alien) {
     return _alien->vivo;
 }
 
-int get_nave_morteTimer(Alien *_alien) {
-    return _alien->morteTimer;
+int get_nave_morteTimer(Nave *_nave) {
+    return _nave->morteTimer;
 }
 
 void desenhaAlien(Alien *_alien) {
@@ -338,6 +329,18 @@ void mover_alien(Alien *_alien, int direcao, float velocidade) {
     }
 }
 
+void mover_alien_especial(Alien *_alien) {
+
+    if(_alien->pos.x >= -BORDAX-OFFSET && _alien->pos.x <= BORDAX-OFFSET) {
+        _alien->pos.x += 0.005;
+    } else {
+        _alien->pos.x += 1.2;
+        _alien->pos.y += 1.2;
+        alien_set_estado(_alien, false);
+    }
+
+}
+
 float get_pos_alienX(Alien *_alien) {
     return _alien->pos.x;
 }
@@ -361,7 +364,9 @@ void alien_set_estado(Alien *_alien, bool estado) {
     _alien->vivo = estado;
 }
 
-//===============================================================================
+//========================================================================================================
+//=========== Tiro =========================================================================================
+//========================================================================================================
 
 /*
     Cria uma instância de tiro.
@@ -455,19 +460,27 @@ void detectar_colisao_alien(Alien *_alien, Tiro *_tiro, int *score) {
 
         if(_tiro->pos.y + 0.03 <= limiteAlienCima && _tiro->pos.y + 0.03 >= limiteAlienBaixo && _alien->vivo) {
             alien_set_estado(_alien, false);
-            *score += _alien->tipo * 10;
+            if(_alien->tipo == 4)
+                *score += 1000;
+            else
+                *score += _alien->tipo * 10;
             guardar_tiro(_tiro);
         }
 
         if(_tiro->pos.y - 0.03 <= limiteAlienCima && _tiro->pos.y - 0.03 >= limiteAlienBaixo && _alien->vivo) {
             alien_set_estado(_alien, false);
-            *score += _alien->tipo * 10;
+            if(_alien->tipo == 4)
+                *score += 1000;
+            else
+                *score += _alien->tipo * 10;
             guardar_tiro(_tiro);
         }
     }
 }
 
-//===============================================================================
+//========================================================================================================
+//============== UI ========================================================================================
+//========================================================================================================
 
 void desenhaOverlay() {
     desenhaSprite(0, 0, 1, spritesUI[0]);

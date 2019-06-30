@@ -6,12 +6,11 @@
 #include "spaceinvaders.h"
 #include "SOIL.h"
 
-
 LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
 void EnableOpenGL(HWND hwnd, HDC*, HGLRC*);
 void DisableOpenGL(HWND, HDC, HGLRC);
 
-//========================================================
+//===================================================================
 bool isGameOver = false;
 bool isGamePaused = true;
 bool isGameStart = true;
@@ -19,14 +18,16 @@ bool isGameWin = false;
 int dirAlien = 1; //Variável para a direção dos aliens
 bool atirar = false, setaD = false, setaE = false; //Variáveis de reconhecimento de tecla
 int alienTimer = ALIENTIMERDEFAULT, timerCount = 1;
-int score = 0;
+int alienEspecialTimer = 1500;
+int score = 0; //Variável da score
 int cooldownTiroJogador = 0, cooldownTiroAlien = 0, timerFinal = 60;
 float vel_jogador = 0.01, vel_alien = 0.04; //Setup das variáveis de velocidade
 Nave *nave; //Ponteiro da nave
 Alien *aliens[ALIENX][ALIENY]; //Ponteiros dos aliens
+Alien *alienEspecial; //Ponteiro do alien especial
 Tiro *tiroJogador;
 Tiro *tirosAliens[NUMTIROSINIMIGOS];
-//========================================================
+//===================================================================
 
 void inicializarJogo();
 void resetarJogo();
@@ -257,7 +258,10 @@ void inicializarJogo() {
 
     carregarTexturas();
 
-    nave = nave_create(-0.5, -0.7, 3);
+    time_t t;
+    srand((unsigned)time(&t)); // Inicializa o random
+
+    nave = nave_create(-0.5, -0.7);
 
     tiroJogador = instanciar_tiro(0, 0, true);
 
@@ -273,8 +277,11 @@ void inicializarJogo() {
             posX += 0.13; // Espaçamento em X
         }
         posY -= 0.1; // Espaçamento em Y
-        posX = -0.45 - OFFSET; // Volta para a primeira coluna
+        posX = -0.45 - OFFSET;
     }
+
+    alienEspecial = alien_create(1, 1, 4);
+    alien_set_estado(alienEspecial, false);
 }
 
 void desenhaJogo() {
@@ -289,7 +296,22 @@ void desenhaJogo() {
         }
     }
 
+    //Desenha o alien de pontos extras
+    desenhaAlien(alienEspecial);
+
     if(!isGamePaused && !isGameOver) {
+
+        //Coloca o alien de pontos extras e reseta o timer dele aleatoriamente
+        if(alienEspecialTimer == 0 && !alien_vivo(alienEspecial)) {
+            iniciarAlienEspecial();
+
+            int timerReset = 800 + rand()%1000+1;
+            alienEspecialTimer = timerReset;
+
+        } else {
+            alienEspecialTimer -= 1;
+        }
+
         //Funcao principal de movimento do personagem jogavel
         mover_nave(nave, setaD, setaE, vel_jogador);
 
@@ -315,6 +337,11 @@ void desenhaJogo() {
     - Fazer tudo isso analisando o timer dos aliens (alienTimer) e os offsets
 */
 void logicaAliens() {
+
+    if(alien_vivo(alienEspecial)) {
+        mover_alien_especial(alienEspecial);
+    }
+
     int i, j, aliensMortos = 0;
     int precisaDescer = false;
 
@@ -324,6 +351,7 @@ void logicaAliens() {
 
             if(alien_vivo(aliens[i][j])) {
 
+                //Morte do jogador quando os aliens chegam na terra
                 if(get_pos_alienY(aliens[i][j]) - 2*TAMANHO <= -0.7) {
                     nave_set_estado(nave, false);
                     isGameOver = true;
@@ -408,8 +436,12 @@ void logicaAliens() {
     }
 }
 
-void logicaTiros() {
+void iniciarAlienEspecial() {
+    set_pos_alien(alienEspecial, -BORDAX-OFFSET+TAMANHO, 0.5);
+    alien_set_estado(alienEspecial, true);
+}
 
+void logicaTiros() {
     if(atirar) {
         if(!tiro_ativo(tiroJogador) && cooldownTiroJogador == 0) {
             nave_atira(nave, tiroJogador);
@@ -425,6 +457,8 @@ void logicaTiros() {
                 detectar_colisao_alien(aliens[i][j], tiroJogador, &score);
             }
         }
+
+        detectar_colisao_alien(alienEspecial, tiroJogador, &score);
     }
 
 }
@@ -439,24 +473,22 @@ void updateTimer() {
     if(cooldownTiroJogador > 0) {
         cooldownTiroJogador -= 1;
     }
-    printf("%d\n", alienTimer);
 }
 
 void desenharInterfaceGrafica() {
 
     if(isGameOver && get_nave_morteTimer(nave) == 0) {
         float posX = -OFFSET, posY = 0;
-        desenhaTextos(-OFFSET, 0.1, 0.4, 4);
-
+        desenhaTextos(-OFFSET, 0.1, 0.4, 4); //Desenha texto de game over
     }
     if(isGameWin) {
-        desenhaTextos(-OFFSET, 0.1, 0.4, 3);
+        desenhaTextos(-OFFSET, 0.1, 0.4, 3); //Desenha texto de vitória
     }
     if(isGameStart) {
-        desenhaTextos(-OFFSET, 0.05, 0.6, 2);
+        desenhaTextos(-OFFSET, 0.05, 0.6, 2); //Desenha texto de início do jogo
     }
 
-    desenhaScore(score, 4);
+    desenhaScore(score, 4); //Desenha 4 digitos de score
 
 }
 
@@ -466,6 +498,7 @@ void resetarJogo() {
     score = 0;
     alienTimer = ALIENTIMERDEFAULT;
     timerCount = 1;
+    alienEspecialTimer = 1500;
     dirAlien = 1;
     cooldownTiroJogador = cooldownTiroAlien = 0;
 

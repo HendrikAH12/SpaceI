@@ -19,13 +19,11 @@ void carregarTexturas();
 
 //============ Nave =======================================================================
 
-Nave* nave_create(float _x, float _y, int numVidas);
+Nave* nave_create(float _x, float _y);
 void nave_destroy(Nave *_nave);
-int quantas_vidas(Nave *_nave);
-int get_nave_morteTimer(Alien *_alien);
+int get_nave_morteTimer(Nave *_nave);
 void desenhaNave(Nave *_nave);
 void mover_nave(Nave *_nave, bool setaDireita, bool setaEsquerda, float vel_movimento);
-void dano_nave(Nave *_nave);
 void nave_atira(Nave *_nave, Tiro *_tiro);
 void nave_set_estado(Nave *_nave, bool estado);
 
@@ -40,6 +38,7 @@ bool alien_vivo(Alien *_alien);
 void alien_set_estado(Alien *_alien, bool estado);
 void desenhaAlien(Alien *_alien);
 void mover_alien(Alien *_alien, int direcao, float velocidade);
+void mover_alien_especial(Alien *_alien);
 float get_pos_alienX(Alien *_alien);
 float get_pos_alienY(Alien *_alien);
 void set_pos_alien(Alien *_alien, float _x, float _y);
