@@ -1,0 +1,66 @@
+# depslib dependency file v1.0
+1561866453 source:c:\users\darkm\documents\github\spacei\space invaders\main.c
+	<windows.h>
+	<gl/gl.h>
+	<stdio.h>
+	<stdbool.h>
+	<time.h>
+	"spaceinvaders.h"
+	"SOIL.h"
+
+1561865676 c:\users\darkm\documents\github\spacei\space invaders\spaceinvaders.h
+
+1561866569 source:c:\users\darkm\documents\github\spacei\space invaders\spaceinvaders.c
+	<stdio.h>
+	<math.h>
+	<stdlib.h>
+	<stdbool.h>
+	<windows.h>
+	<gl/gl.h>
+	"spaceinvaders.h"
+	"SOIL.h"
+
+1560518609 source:c:\users\ideapad330\desktop\spacei-setup-dos-controles\space invaders\main.c
+	<windows.h>
+	<gl/gl.h>
+	<stdio.h>
+	<stdbool.h>
+	<time.h>
+	"spaceinvaders.h"
+
+1560516586 c:\users\ideapad330\desktop\spacei-setup-dos-controles\space invaders\spaceinvaders.h
+
+1560518480 source:c:\users\ideapad330\desktop\spacei-setup-dos-controles\space invaders\spaceinvaders.c
+	<stdio.h>
+	<math.h>
+	<stdlib.h>
+	<stdbool.h>
+	<windows.h>
+	<gl/gl.h>
+	"spaceinvaders.h"
+
+1561055604 c:\users\darkm\documents\github\spacei\space invaders\soil.h
+
+1561930134 source:c:\users\darkm\documents\github\spacei\grupomhg\spaceinvaders.c
+	<stdio.h>
+	<math.h>
+	<stdlib.h>
+	<stdbool.h>
+	<windows.h>
+	<gl/gl.h>
+	"spaceinvaders.h"
+	"SOIL.h"
+
+1561930169 c:\users\darkm\documents\github\spacei\grupomhg\spaceinvaders.h
+
+1561055604 c:\users\darkm\documents\github\spacei\grupomhg\soil.h
+
+1561929315 source:c:\users\darkm\documents\github\spacei\grupomhg\main.c
+	<windows.h>
+	<gl/gl.h>
+	<stdio.h>
+	<stdbool.h>
+	<time.h>
+	"spaceinvaders.h"
+	"SOIL.h"
+
