@@ -1,3 +1,11 @@
+/*
+    Grupo MHG
+    Integrantes:
+        - Mateus Carmo de Oliveira (11911BCC026)
+        - Hendrik Abdalla Hermann (11911BCC034)
+        - Gabriel Joshua Calixto Naves dos Santos (11911BCC052)
+*/
+
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -28,7 +36,7 @@ struct Tiro {
     struct Point pos;
 };
 
-GLuint charSprites[5];
+GLuint charSprites[6];
 GLuint morteSprites[3];
 GLuint spritesUI[5];
 GLuint spritesNums[10];
@@ -37,13 +45,14 @@ static void desenhaSprite(float x, float y, float tamanho, GLuint tex);
 static void desenhaSpriteJogador(float x, float y, float tamanho, GLuint tex);
 static GLuint carregaArqTextura(char *str);
 
+//Setup das texturas
 void carregarTexturas() {
     char str[50] = ".//Sprites//nave.png";
     charSprites[0] = carregaArqTextura(str);
 
     int i;
 
-    for(i = 1; i <= 4; i++) {
+    for(i = 1; i <= 5; i++) {
         sprintf(str, ".//Sprites//inimigo%d.png", i);
         charSprites[i] = carregaArqTextura(str);
     }
@@ -460,7 +469,7 @@ void detectar_colisao_alien(Alien *_alien, Tiro *_tiro, int *score) {
 
         if(_tiro->pos.y + 0.03 <= limiteAlienCima && _tiro->pos.y + 0.03 >= limiteAlienBaixo && _alien->vivo) {
             alien_set_estado(_alien, false);
-            if(_alien->tipo == 4)
+            if(_alien->tipo == 4 || _alien->tipo == 5)
                 *score += 1000;
             else
                 *score += _alien->tipo * 10;
@@ -469,7 +478,7 @@ void detectar_colisao_alien(Alien *_alien, Tiro *_tiro, int *score) {
 
         if(_tiro->pos.y - 0.03 <= limiteAlienCima && _tiro->pos.y - 0.03 >= limiteAlienBaixo && _alien->vivo) {
             alien_set_estado(_alien, false);
-            if(_alien->tipo == 4)
+            if(_alien->tipo == 4 || _alien->tipo == 5)
                 *score += 1000;
             else
                 *score += _alien->tipo * 10;
@@ -486,11 +495,14 @@ void desenhaOverlay() {
     desenhaSprite(0, 0, 1, spritesUI[0]);
 }
 
-void desenhaScore(int score, int numDigitos) {
+void desenhaScore(int score, int numDigitos, bool segredo) {
     float posX = -OFFSET-0.1, posY = 0.8;
-    desenhaSprite(posX, posY, 0.1, spritesUI[1]);
+    if(segredo)
+        desenhaSpriteJogador(posX, posY, 0.1, spritesUI[1]);
+    else
+        desenhaSprite(posX, posY, 0.1, spritesUI[1]);
 
-    char scoreStr[15];
+    char scoreStr[15] = "";
     sprintf(scoreStr, "%d", score);
 
     int i;
@@ -528,7 +540,7 @@ void desenhaScore(int score, int numDigitos) {
                 desenhaSprite(posX + offsetDigito, posY, tamanhoNums, spritesNums[9]);
                 break;
         }
-        offsetDigito += 0.05;
+        offsetDigito += 0.042;
     }
 }
 
