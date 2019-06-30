@@ -2,13 +2,13 @@
 #define ALIENY 7
 #define ALIENTIMERDEFAULT 80
 #define COOLDOWN 60
-#define TAMANHO 0.045
+#define TAMANHO 0.038
 #define NUMTIROSALIADOS 2
 #define NUMTIROSINIMIGOS 10
 #define VELOCIDADETIRO 0.015
-#define BORDAX 0.6
+#define BORDAX 0.5
 #define BORDAY 0.8
-#define OFFSET 0.28
+#define OFFSET 0.058
 
 typedef struct Point Point;
 typedef struct TNave Nave;

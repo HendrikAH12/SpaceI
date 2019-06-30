@@ -53,7 +53,7 @@ void carregarTexturas() {
         morteSprites[i] = carregaArqTextura(str);
     }
 
-    spritesUI[0] = carregaArqTextura(".//Sprites//fundo.png");
+    spritesUI[0] = carregaArqTextura(".//Sprites//Overlay.png");
     spritesUI[1] = carregaArqTextura(".//Sprites//Score//score.png");
 
     for(i = 0; i < 10; i++) {
@@ -394,20 +394,20 @@ void desenhaTiro(Tiro *_tiro) {
         if(_tiro->aliado) {
             glBegin(GL_QUADS);
 
-                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX + 0.005, posY + 0.03);
-                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX + 0.005, posY - 0.03);
-                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX - 0.005, posY - 0.03);
-                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX - 0.005, posY + 0.03);
+                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX + 0.0045, posY + 0.025);
+                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX + 0.0045, posY - 0.025);
+                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX - 0.0045, posY - 0.025);
+                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX - 0.0045, posY + 0.025);
 
             glEnd();
         }
         else {
             glBegin(GL_QUADS);
 
-                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.005, posY + 0.03);
-                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.005, posY - 0.03);
-                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.005, posY - 0.03);
-                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.005, posY + 0.03);
+                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.0045, posY + 0.025);
+                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.0045, posY - 0.025);
+                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.0045, posY - 0.025);
+                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.0045, posY + 0.025);
 
             glEnd();
         }
@@ -468,18 +468,18 @@ void detectar_colisao_alien(Alien *_alien, Tiro *_tiro, int *score) {
 //===============================================================================
 
 void desenhaFundo() {
-    desenhaSprite(0, 0, 0.9, spritesUI[0]);
+    desenhaSprite(0, 0, 1, spritesUI[0]);
 }
 
 void desenhaScore(int score, int numDigitos) {
-    float posX = 0.55, posY = 0;
+    float posX = -OFFSET-0.1, posY = 0.8;
     desenhaSprite(posX, posY, 0.1, spritesUI[1]);
 
     char scoreStr[15];
     sprintf(scoreStr, "%d", score);
 
     int i;
-    float offsetDigito = 0.15, tamanhoNums = 0.03;
+    float offsetDigito = 0.15, tamanhoNums = 0.025;
     for(i = 0; i < numDigitos; i++) {
         switch (scoreStr[i]) {
             case '0':
@@ -513,6 +513,6 @@ void desenhaScore(int score, int numDigitos) {
                 desenhaSprite(posX + offsetDigito, posY, tamanhoNums, spritesNums[9]);
                 break;
         }
-        offsetDigito += 0.055;
+        offsetDigito += 0.05;
     }
 }

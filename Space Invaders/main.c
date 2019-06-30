@@ -68,7 +68,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
     /* create main window */
     hwnd = CreateWindowEx(0,
                           "GLSample",
-                          "OpenGL Sample",
+                          "Space Invader",
                           WS_OVERLAPPEDWINDOW,
                           CW_USEDEFAULT,
                           CW_USEDEFAULT,
@@ -117,14 +117,14 @@ int WINAPI WinMain(HINSTANCE hInstance,
                 desenhaFundo();
 
                 //Desenha o quadrado da área jogável
-                glBegin(GL_QUADS);
+                /*glBegin(GL_QUADS);
 
                     glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(0.4, 0.9);
                     glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(0.4, -0.9);
                     glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(1, -0.9);
                     glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(1, 0.9);
 
-                glEnd();
+                glEnd();*/
 
                 desenhaJogo();
                 desenharInterfaceGrafica();
@@ -270,7 +270,7 @@ void inicializarJogo() {
     tiroJogador = instanciar_tiro(0, 0, true);
 
     int i, j, tipo = 1;
-    float posX = -0.5 - OFFSET, posY = 0.6; // Posições iniciais
+    float posX = -0.45 - OFFSET, posY = 0.6; // Posições iniciais
     for(i = 0; i < ALIENX; i++) {
 
         if(i != 0 && i % 2 != 0) // Variar o tipo de alien de acordo com a linha
@@ -278,10 +278,10 @@ void inicializarJogo() {
 
         for(j = 0; j < ALIENY; j++) {
             aliens[i][j] = alien_create(posX, posY, 4-tipo); // 4 - tipo para garantir os aliens corretos
-            posX += 0.16; // Espaçamento em X
+            posX += 0.12; // Espaçamento em X
         }
         posY -= 0.1; // Espaçamento em Y
-        posX = -0.5 - OFFSET; // Volta para a primeira coluna
+        posX = -0.45 - OFFSET; // Volta para a primeira coluna
     }
 }
 
