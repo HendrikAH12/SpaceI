@@ -1,3 +1,11 @@
+/*
+    Grupo MHG
+    Integrantes:
+        - Mateus Carmo de Oliveira (11911BCC026)
+        - Hendrik Abdalla Hermann (11911BCC034)
+        - Gabriel Joshua Calixto Naves dos Santos (11911BCC052)
+*/
+
 #define ALIENX 5
 #define ALIENY 7
 #define ALIENTIMERDEFAULT 80
@@ -49,12 +57,13 @@ void descer_alien(Alien *_alien);
 Tiro* instanciar_tiro(float posX, float posY, bool _aliado);
 void tiro_destroy(Tiro *tiro);
 bool tiro_ativo(Tiro *_tiro);
+void guardar_tiro(Tiro *_tiro);
 void desenhaTiro(Tiro *_tiro);
 void mover_tiro(Tiro *_tiro);
 void detectar_colisao_alien(Alien *_alien, Tiro *_tiro, int *score);
 
 //============ Interfaco do Usuário =======================================================================
 
-void desenhaScore(int score, int numDigitos);
+void desenhaScore(int score, int numDigitos, bool segredo);
 void desenhaOverlay();
 void desenhaTextos(float posX, float posY, float tam, int idTexto);

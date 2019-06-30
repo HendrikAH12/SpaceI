@@ -1,3 +1,11 @@
+/*
+    Grupo MHG
+    Integrantes:
+        - Mateus Carmo de Oliveira (11911BCC026)
+        - Hendrik Abdalla Hermann (11911BCC034)
+        - Gabriel Joshua Calixto Naves dos Santos (11911BCC052)
+*/
+
 #include <windows.h>
 #include <gl/gl.h>
 #include <stdio.h>
@@ -15,6 +23,7 @@ bool isGameOver = false;
 bool isGamePaused = true;
 bool isGameStart = true;
 bool isGameWin = false;
+bool segredo = false;
 int dirAlien = 1; //Variável para a direção dos aliens
 bool atirar = false, setaD = false, setaE = false; //Variáveis de reconhecimento de tecla
 int alienTimer = ALIENTIMERDEFAULT, timerCount = 1;
@@ -26,8 +35,9 @@ Nave *nave; //Ponteiro da nave
 Alien *aliens[ALIENX][ALIENY]; //Ponteiros dos aliens
 Alien *alienEspecial; //Ponteiro do alien especial
 Tiro *tiroJogador;
-Tiro *tirosAliens[NUMTIROSINIMIGOS];
 //===================================================================
+
+clock_t start_t, end_t, total_t;
 
 void inicializarJogo();
 void resetarJogo();
@@ -35,6 +45,7 @@ void encerrarJogo();
 void desenhaJogo();
 void desenharInterfaceGrafica();
 void logicaAliens();
+void iniciarAlienEspecial();
 void logicaTiros();
 void updateTimer();
 
@@ -110,6 +121,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
         else
         {
             /* OpenGL animation code goes here */
+            start_t = clock();
 
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -125,7 +137,10 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
             SwapBuffers(hDC);
 
-            Sleep (1);
+            end_t = clock();
+            total_t = (end_t - start_t)/CLOCKS_PER_SEC;
+
+            Sleep (1-total_t);
         }
     }
 
@@ -136,6 +151,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
     /* destroy the window explicitly */
     DestroyWindow(hwnd);
+
+    printf("Jogo finalizado. Score final: %d\n", score);
+    printf("Muito obrigado por jogar!\n");
 
     return msg.wParam;
 }
@@ -280,7 +298,15 @@ void inicializarJogo() {
         posX = -0.45 - OFFSET;
     }
 
-    alienEspecial = alien_create(1, 1, 4);
+    int partidaSegredo = rand()%4+1;
+    printf("%d\n", partidaSegredo);
+    if(partidaSegredo <= 3) {
+        alienEspecial = alien_create(1, 1, 4);
+    } else {
+        alienEspecial = alien_create(1, 1, 5);
+        segredo = true;
+        printf("Segredo!\n");
+    }
     alien_set_estado(alienEspecial, false);
 }
 
@@ -299,7 +325,7 @@ void desenhaJogo() {
     //Desenha o alien de pontos extras
     desenhaAlien(alienEspecial);
 
-    if(!isGamePaused && !isGameOver) {
+    if(!isGamePaused && !isGameOver && !isGameWin) {
 
         //Coloca o alien de pontos extras e reseta o timer dele aleatoriamente
         if(alienEspecialTimer == 0 && !alien_vivo(alienEspecial)) {
@@ -478,7 +504,6 @@ void updateTimer() {
 void desenharInterfaceGrafica() {
 
     if(isGameOver && get_nave_morteTimer(nave) == 0) {
-        float posX = -OFFSET, posY = 0;
         desenhaTextos(-OFFSET, 0.1, 0.4, 4); //Desenha texto de game over
     }
     if(isGameWin) {
@@ -488,7 +513,7 @@ void desenharInterfaceGrafica() {
         desenhaTextos(-OFFSET, 0.05, 0.6, 2); //Desenha texto de início do jogo
     }
 
-    desenhaScore(score, 4); //Desenha 4 digitos de score
+    desenhaScore(score, 4, segredo); //Desenha 4 digitos de score
 
 }
 
@@ -545,8 +570,4 @@ void encerrarJogo() {
     }
 
     tiro_destroy(tiroJogador);
-
-    for(i = 0; i < NUMTIROSINIMIGOS; i++) {
-        tiro_destroy(tirosAliens[i]);
-    }
 }

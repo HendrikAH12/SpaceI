@@ -41,3 +41,26 @@
 
 1561055604 c:\users\darkm\documents\github\spacei\space invaders\soil.h
 
+1561928274 source:c:\users\darkm\documents\github\spacei\grupomhg\spaceinvaders.c
+	<stdio.h>
+	<math.h>
+	<stdlib.h>
+	<stdbool.h>
+	<windows.h>
+	<gl/gl.h>
+	"spaceinvaders.h"
+	"SOIL.h"
+
+1561928130 c:\users\darkm\documents\github\spacei\grupomhg\spaceinvaders.h
+
+1561055604 c:\users\darkm\documents\github\spacei\grupomhg\soil.h
+
+1561928638 source:c:\users\darkm\documents\github\spacei\grupomhg\main.c
+	<windows.h>
+	<gl/gl.h>
+	<stdio.h>
+	<stdbool.h>
+	<time.h>
+	"spaceinvaders.h"
+	"SOIL.h"
+
