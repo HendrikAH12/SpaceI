@@ -474,8 +474,11 @@ void desenhaOverlay() {
     desenhaSprite(0, 0, 1, spritesUI[0]);
 }
 
+//Converte a score em imagens e desenha
 void desenhaScore(int score, int numDigitos, bool segredo) {
+
     float posX = -OFFSET-0.1, posY = 0.8;
+
     if(segredo)
         desenhaSpriteJogador(posX, posY, 0.1, spritesUI[1]);
     else
@@ -483,7 +486,6 @@ void desenhaScore(int score, int numDigitos, bool segredo) {
 
     char scoreStr[15] = "";
     sprintf(scoreStr, "%d", score);
-
     int i;
     float offsetDigito = 0.15, tamanhoNums = 0.025;
     for(i = 0; i < numDigitos; i++) {
