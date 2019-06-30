@@ -41,7 +41,11 @@
 
 1561055604 c:\users\darkm\documents\github\spacei\space invaders\soil.h
 
+<<<<<<< HEAD:GrupoMHG/Space Invaders.depend
 1561929256 source:c:\users\darkm\documents\github\spacei\grupomhg\spaceinvaders.c
+=======
+1561928274 source:c:\users\darkm\documents\github\spacei\grupomhg\spaceinvaders.c
+>>>>>>> c654976c26846f4460c103af69d6e0b99b252f23:GrupoMHG/Space Invaders.depend
 	<stdio.h>
 	<math.h>
 	<stdlib.h>
@@ -51,11 +55,19 @@
 	"spaceinvaders.h"
 	"SOIL.h"
 
+<<<<<<< HEAD:GrupoMHG/Space Invaders.depend
 1561929264 c:\users\darkm\documents\github\spacei\grupomhg\spaceinvaders.h
 
 1561055604 c:\users\darkm\documents\github\spacei\grupomhg\soil.h
 
 1561929315 source:c:\users\darkm\documents\github\spacei\grupomhg\main.c
+=======
+1561928130 c:\users\darkm\documents\github\spacei\grupomhg\spaceinvaders.h
+
+1561055604 c:\users\darkm\documents\github\spacei\grupomhg\soil.h
+
+1561928638 source:c:\users\darkm\documents\github\spacei\grupomhg\main.c
+>>>>>>> c654976c26846f4460c103af69d6e0b99b252f23:GrupoMHG/Space Invaders.depend
 	<windows.h>
 	<gl/gl.h>
 	<stdio.h>
