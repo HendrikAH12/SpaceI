@@ -2,7 +2,7 @@
 #define ALIENY 7
 #define ALIENTIMERDEFAULT 80
 #define COOLDOWN 60
-#define TAMANHO 0.038
+#define TAMANHO 0.042
 #define NUMTIROSALIADOS 2
 #define NUMTIROSINIMIGOS 10
 #define VELOCIDADETIRO 0.015
@@ -54,7 +54,8 @@ void desenhaTiro(Tiro *_tiro);
 void mover_tiro(Tiro *_tiro);
 void detectar_colisao_alien(Alien *_alien, Tiro *_tiro, int *score);
 
-//============ IU =======================================================================
+//============ Interfaco do Usuário =======================================================================
 
 void desenhaScore(int score, int numDigitos);
-void desenhaFundo();
+void desenhaOverlay();
+void desenhaTextos(float posX, float posY, float tam, int idTexto);

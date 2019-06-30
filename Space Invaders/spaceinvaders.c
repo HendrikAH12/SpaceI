@@ -30,7 +30,7 @@ struct Tiro {
 
 GLuint charSprites[4];
 GLuint morteSprites[3];
-GLuint spritesUI[4];
+GLuint spritesUI[5];
 GLuint spritesNums[10];
 
 static void desenhaSprite(float x, float y, float tamanho, GLuint tex);
@@ -55,6 +55,9 @@ void carregarTexturas() {
 
     spritesUI[0] = carregaArqTextura(".//Sprites//Overlay.png");
     spritesUI[1] = carregaArqTextura(".//Sprites//Score//score.png");
+    spritesUI[2] = carregaArqTextura(".//Sprites//start.png");
+    spritesUI[3] = carregaArqTextura(".//Sprites//win.png");
+    spritesUI[4] = carregaArqTextura(".//Sprites//gameover.png");
 
     for(i = 0; i < 10; i++) {
         sprintf(str, ".//Sprites//Score//sprite%d.png", i);
@@ -448,7 +451,7 @@ void detectar_colisao_alien(Alien *_alien, Tiro *_tiro, int *score) {
     float limiteAlienEsquerda = _alien->pos.x - TAMANHO;
     float limiteAlienDireita = _alien->pos.x + TAMANHO;
 
-    if(_tiro->pos.x >= limiteAlienEsquerda && _tiro->pos.x <= limiteAlienDireita) {
+    if(_tiro->pos.x >= limiteAlienEsquerda && _tiro->pos.x <= limiteAlienDireita && _tiro->aliado == true) {
 
         if(_tiro->pos.y + 0.03 <= limiteAlienCima && _tiro->pos.y + 0.03 >= limiteAlienBaixo && _alien->vivo) {
             alien_set_estado(_alien, false);
@@ -461,13 +464,12 @@ void detectar_colisao_alien(Alien *_alien, Tiro *_tiro, int *score) {
             *score += _alien->tipo * 10;
             guardar_tiro(_tiro);
         }
-
     }
 }
 
 //===============================================================================
 
-void desenhaFundo() {
+void desenhaOverlay() {
     desenhaSprite(0, 0, 1, spritesUI[0]);
 }
 
@@ -515,4 +517,8 @@ void desenhaScore(int score, int numDigitos) {
         }
         offsetDigito += 0.05;
     }
+}
+
+void desenhaTextos(float posX, float posY, float tam, int idTexto) {
+    desenhaSprite(posX, posY, tam, spritesUI[idTexto]);
 }

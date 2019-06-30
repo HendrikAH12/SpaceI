@@ -13,7 +13,9 @@ void DisableOpenGL(HWND, HDC, HGLRC);
 
 //========================================================
 bool isGameOver = false;
-bool isGamePaused = false;
+bool isGamePaused = true;
+bool isGameStart = true;
+bool isGameWin = false;
 int dirAlien = 1; //Variável para a direção dos aliens
 bool atirar = false, setaD = false, setaE = false; //Variáveis de reconhecimento de tecla
 int alienTimer = ALIENTIMERDEFAULT, timerCount = 1;
@@ -68,7 +70,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
     /* create main window */
     hwnd = CreateWindowEx(0,
                           "GLSample",
-                          "Space Invader",
+                          "Space Invaders",
                           WS_OVERLAPPEDWINDOW,
                           CW_USEDEFAULT,
                           CW_USEDEFAULT,
@@ -107,33 +109,21 @@ int WINAPI WinMain(HINSTANCE hInstance,
         else
         {
             /* OpenGL animation code goes here */
-            if(!isGamePaused) {
 
-                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
 
-                glPushMatrix();
+            glPushMatrix();
 
-                desenhaFundo();
+            desenhaOverlay();
+            desenharInterfaceGrafica();
 
-                //Desenha o quadrado da área jogável
-                /*glBegin(GL_QUADS);
+            desenhaJogo();
 
-                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(0.4, 0.9);
-                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(0.4, -0.9);
-                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(1, -0.9);
-                    glColor3f(0.0f, 0.0f, 0.0f); glVertex2f(1, 0.9);
+            glPopMatrix();
 
-                glEnd();*/
+            SwapBuffers(hDC);
 
-                desenhaJogo();
-                desenharInterfaceGrafica();
-
-                glPopMatrix();
-
-                SwapBuffers(hDC);
-
-            }
             Sleep (1);
         }
     }
@@ -179,12 +169,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 case 'P':
                     if(!isGameOver) {
                         isGamePaused = !isGamePaused;
+                        if(isGameStart)
+                            isGameStart = false;
                     }
                     break;
 
                 case 'R':
                 {
-                    if(isGamePaused || isGameOver)
+                    if(isGamePaused || isGameOver || isGameWin)
                         resetarJogo();
                 }
                 break;
@@ -278,7 +270,7 @@ void inicializarJogo() {
 
         for(j = 0; j < ALIENY; j++) {
             aliens[i][j] = alien_create(posX, posY, 4-tipo); // 4 - tipo para garantir os aliens corretos
-            posX += 0.12; // Espaçamento em X
+            posX += 0.13; // Espaçamento em X
         }
         posY -= 0.1; // Espaçamento em Y
         posX = -0.45 - OFFSET; // Volta para a primeira coluna
@@ -297,7 +289,7 @@ void desenhaJogo() {
         }
     }
 
-    if(!isGameOver) {
+    if(!isGamePaused && !isGameOver) {
         //Funcao principal de movimento do personagem jogavel
         mover_nave(nave, setaD, setaE, vel_jogador);
 
@@ -400,6 +392,7 @@ void logicaAliens() {
         }
     }
 
+    //Aumenta a velocidade com o número de aliens mortos
     if(aliensMortos == 14 && timerCount != 2) {
         timerCount = 2;
     }
@@ -408,6 +401,10 @@ void logicaAliens() {
     }
     if(aliensMortos == 34 && timerCount != 10) {
         timerCount = 10;
+    }
+
+    if(aliensMortos >= 35) {
+        isGameWin = true; //Finaliza o jogo
     }
 }
 
@@ -429,6 +426,7 @@ void logicaTiros() {
             }
         }
     }
+
 }
 
 // Timers
@@ -448,23 +446,14 @@ void desenharInterfaceGrafica() {
 
     if(isGameOver && get_nave_morteTimer(nave) == 0) {
         float posX = -OFFSET, posY = 0;
+        desenhaTextos(-OFFSET, 0.1, 0.4, 4);
 
-        glBegin(GL_QUADS);
-
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX - 0.11) + 0.1, posY + 0.1);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX - 0.11) + 0.1, posY - 0.1);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX - 0.11) - 0.1, posY - 0.1);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX - 0.11) - 0.1, posY + 0.1);
-
-        glEnd();
-        glBegin(GL_QUADS);
-
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.11) + 0.1, posY + 0.1);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.11) + 0.1, posY - 0.1);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.11) - 0.1, posY - 0.1);
-            glColor3f(1.0f, 1.0f, 1.0f); glVertex2f((posX + 0.11) - 0.1, posY + 0.1);
-
-        glEnd();
+    }
+    if(isGameWin) {
+        desenhaTextos(-OFFSET, 0.1, 0.4, 3);
+    }
+    if(isGameStart) {
+        desenhaTextos(-OFFSET, 0.05, 0.6, 2);
     }
 
     desenhaScore(score, 4);
@@ -488,24 +477,27 @@ void resetarJogo() {
     }
 
     int i, j;
-    float posX = -0.4 - OFFSET, posY = 0.5; // Posições iniciais
+    float posX = -0.45 - OFFSET, posY = 0.6; // Posições iniciais
     for(i = 0; i < ALIENX; i++) {
 
         for(j = 0; j < ALIENY; j++) {
             set_pos_alien(aliens[i][j], posX, posY);
             if(!alien_vivo(aliens[i][j]))
                 alien_set_estado(aliens[i][j], true);
-            posX += 0.16; // Espaçamento em X
+            posX += 0.13; // Espaçamento em X
         }
         posY -= 0.1; // Espaçamento em Y
-        posX = -0.4 - OFFSET; // Volta para a primeira coluna
+        posX = -0.45 - OFFSET; // Volta para a primeira coluna
     }
 
     if(isGamePaused)
         isGamePaused = false; //Despausa (caso esteja pausado)
 
     if(isGameOver)
-        isGameOver = false; //Reinicia o jogo (caso o jogador tivesse morrido)
+        isGameOver = false; //Reinicia o jogo (caso o jogador tenha morrido)
+
+    if(isGameWin)
+        isGameWin = false; //Reinicia o jogo (caso o jogador tenha ganhado)
 }
 
 // Desaloca a memória utilizada para garantir uma finalização boa
