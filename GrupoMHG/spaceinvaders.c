@@ -32,7 +32,7 @@ struct TAlien {
 };
 
 struct Tiro {
-    bool ativo, aliado;
+    bool ativo;
     struct Point pos;
 };
 
@@ -377,18 +377,13 @@ void alien_set_estado(Alien *_alien, bool estado) {
 //=========== Tiro =========================================================================================
 //========================================================================================================
 
-/*
-    Cria uma instância de tiro.
-    - Cada tiro tem um bool "aliado" que indica se o tiro vem dos aliens ou do jogador
-    - Se aliado é true -> o tiro se move para cima
-    - Se não -> o tiro se move para baixo
-*/
-Tiro* instanciar_tiro(float posX, float posY, bool _aliado) {
+
+// Cria uma instância de tiro.
+Tiro* instanciar_tiro(float posX, float posY) {
     Tiro* tiro = malloc(sizeof(Tiro));
     if(tiro != NULL) {
         tiro->pos.x = posX;
         tiro->pos.y = posY;
-        tiro->aliado = _aliado;
         tiro->ativo = false;
     }
     return tiro;
@@ -408,26 +403,14 @@ void desenhaTiro(Tiro *_tiro) {
         float posX = _tiro->pos.x;
         float posY = _tiro->pos.y;
 
-        if(_tiro->aliado) {
-            glBegin(GL_QUADS);
+        glBegin(GL_QUADS);
 
-                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX + 0.0045, posY + 0.025);
-                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX + 0.0045, posY - 0.025);
-                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX - 0.0045, posY - 0.025);
-                glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX - 0.0045, posY + 0.025);
+        glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX + 0.0045, posY + 0.025);
+        glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX + 0.0045, posY - 0.025);
+        glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX - 0.0045, posY - 0.025);
+        glColor3f(0.0f, 1.0f, 0.0f); glVertex2f(posX - 0.0045, posY + 0.025);
 
-            glEnd();
-        }
-        else {
-            glBegin(GL_QUADS);
-
-                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.0045, posY + 0.025);
-                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX + 0.0045, posY - 0.025);
-                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.0045, posY - 0.025);
-                glColor3f(1.0f, 1.0f, 1.0f); glVertex2f(posX - 0.0045, posY + 0.025);
-
-            glEnd();
-        }
+        glEnd();
     }
 }
 
@@ -440,11 +423,7 @@ void guardar_tiro(Tiro *_tiro) {
 
 void mover_tiro(Tiro *_tiro) {
 
-    if(_tiro->aliado) {
-        _tiro->pos.y += VELOCIDADETIRO;
-    } else {
-        _tiro->pos.y -= VELOCIDADETIRO;
-    }
+    _tiro->pos.y += VELOCIDADETIRO;
 
     if(_tiro->pos.y + 0.04 >= BORDAY || _tiro->pos.y <= -BORDAY) {
         guardar_tiro(_tiro);
@@ -465,7 +444,7 @@ void detectar_colisao_alien(Alien *_alien, Tiro *_tiro, int *score) {
     float limiteAlienEsquerda = _alien->pos.x - TAMANHO;
     float limiteAlienDireita = _alien->pos.x + TAMANHO;
 
-    if(_tiro->pos.x >= limiteAlienEsquerda && _tiro->pos.x <= limiteAlienDireita && _tiro->aliado == true) {
+    if(_tiro->pos.x >= limiteAlienEsquerda && _tiro->pos.x <= limiteAlienDireita) {
 
         if(_tiro->pos.y + 0.03 <= limiteAlienCima && _tiro->pos.y + 0.03 >= limiteAlienBaixo && _alien->vivo) {
             alien_set_estado(_alien, false);

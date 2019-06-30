@@ -281,7 +281,7 @@ void inicializarJogo() {
 
     nave = nave_create(-0.5, -0.7);
 
-    tiroJogador = instanciar_tiro(0, 0, true);
+    tiroJogador = instanciar_tiro(0, 0);
 
     int i, j, tipo = 1;
     float posX = -0.45 - OFFSET, posY = 0.6; // Posições iniciais
@@ -308,19 +308,18 @@ void inicializarJogo() {
     alien_set_estado(alienEspecial, false);
 }
 
+//Desenha os componentes do jogo
 void desenhaJogo() {
 
-    //Desenha o personagem jogável
     desenhaNave(nave);
 
     int i, j;
     for(i = 0; i < ALIENX; i++) {
         for(j = 0; j < ALIENY; j++) {
-            desenhaAlien(aliens[i][j]); //Funcao principal de desenho dos aliens
+            desenhaAlien(aliens[i][j]);
         }
     }
 
-    //Desenha o alien de pontos extras
     desenhaAlien(alienEspecial);
 
     if(!isGamePaused && !isGameOver && !isGameWin) {
@@ -329,27 +328,22 @@ void desenhaJogo() {
         if(alienEspecialTimer == 0 && !alien_vivo(alienEspecial)) {
             iniciarAlienEspecial();
 
-            int timerReset = 800 + rand()%1000+1;
+            int timerReset = 1000 + rand()%1000+1;
             alienEspecialTimer = timerReset;
 
         } else {
             alienEspecialTimer -= 1;
         }
 
-        //Funcao principal de movimento do personagem jogavel
         mover_nave(nave, setaD, setaE, vel_jogador);
 
-        //Desenha e processa o movimento dos aliens
         logicaAliens();
 
-        //Desenha o tiro do jogador
         if(tiro_ativo(tiroJogador))
             desenhaTiro(tiroJogador);
 
-        //Processa e movimenta o tiro dos aliens e dos aliados
         logicaTiros();
 
-        //Atualiza o timer
         updateTimer();
     }
 }
@@ -547,13 +541,13 @@ void resetarJogo() {
     }
 
     if(isGamePaused)
-        isGamePaused = false; //Despausa (caso esteja pausado)
+        isGamePaused = false; //Despausa
 
     if(isGameOver)
-        isGameOver = false; //Reinicia o jogo (caso o jogador tenha morrido)
+        isGameOver = false; //Reinicia o jogo
 
     if(isGameWin)
-        isGameWin = false; //Reinicia o jogo (caso o jogador tenha ganhado)
+        isGameWin = false; //Reinicia o jogo
 }
 
 // Desaloca a memória utilizada para garantir uma finalização boa

@@ -54,7 +54,7 @@ void descer_alien(Alien *_alien);
 
 //============ Tiro =======================================================================
 
-Tiro* instanciar_tiro(float posX, float posY, bool _aliado);
+Tiro* instanciar_tiro(float posX, float posY);
 void tiro_destroy(Tiro *tiro);
 bool tiro_ativo(Tiro *_tiro);
 void guardar_tiro(Tiro *_tiro);
