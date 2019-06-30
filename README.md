@@ -7,6 +7,3 @@ Pacman -> Space Invaders
 <br/>
 
 Membros: Mateus Carmo, Hendrik Abdallah, Gabriel Joshua
-
-Opcionais:
-- Audio?
